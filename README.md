@@ -4,3 +4,5 @@
 - C++ 코드는 .cpp
 
 - JAVA 코드는 .java
+
+- Python 코드는 .py
