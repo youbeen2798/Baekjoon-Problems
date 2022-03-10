@@ -5,7 +5,7 @@ using namespace std;
 
 int main() {
 
-	ios_base::sync_with_stdio(false);
+	ios_base::sync_with_stdio(false); // cin cout ì†ë„ ë¹ ë¥´ê²Œ
 	cin.tie(NULL);
 	cout.tie(NULL);
 
@@ -21,12 +21,12 @@ int main() {
 		if (input == "push_front") {
 			int n;
 			cin >> n;
-			dq.push_front(n); // Á¦ÀÏ ¾Õ¿¡ ¿ø¼Ò Ãß°¡
+			dq.push_front(n); // ì œì¼ ì•ì— ì›ì†Œ ì¶”ê°€
 		}
 		else if (input == "push_back") {
 			int n;
 			cin >> n;
-			dq.push_back(n); //Á¦ÀÏ µÚ¿¡ ¿ø¼Ò Ãß°¡
+			dq.push_back(n); //ì œì¼ ë’¤ì— ì›ì†Œ ì¶”ê°€
 		}
 		else if (input == "pop_front") {
 			if (dq.empty()) {
@@ -34,7 +34,7 @@ int main() {
 			}
 			else {
 				cout << dq.front() << "\n";
-				dq.pop_front(); // Á¦ÀÏ ¾Õ ¿ø¼Ò »èÁ¦
+				dq.pop_front(); // ì œì¼ ì• ì›ì†Œ ì‚­ì œ
 			}
 		}
 		else if (input == "pop_back") {
@@ -43,7 +43,7 @@ int main() {
 			}
 			else {
 				cout << dq.back() << "\n";
-				dq.pop_back(); //Á¦ÀÏ µÚ ¿ø¼Ò »èÁ¦
+				dq.pop_back(); //ì œì¼ ë’¤ ì›ì†Œ ì‚­ì œ
 			}
 		}
 		else if (input == "size") {
@@ -62,7 +62,7 @@ int main() {
 				cout << "-1" << "\n";
 			}
 			else {
-				cout << dq.front() << "\n"; //Á¦ÀÏ ¾Õ ¿ø¼Ò ¹İÈ¯
+				cout << dq.front() << "\n"; //ì œì¼ ì• ì›ì†Œ ë°˜í™˜
 			}
 		}
 		else if (input == "back") {
@@ -70,7 +70,7 @@ int main() {
 				cout << "-1" << "\n";
 			}
 			else {
-				cout << dq.back() << "\n"; //Á¦ÀÏ µÚ ¿ø¼Ò ¹İÈ¯
+				cout << dq.back() << "\n"; //ì œì¼ ë’¤ ì›ì†Œ ë°˜í™˜
 			}
 		}
 
