@@ -4,35 +4,35 @@
 using namespace std;
 
 int main() {
-    ios_base::sync_with_stdio(0); //ÀÔÃâ·Â ¼Óµµ ºü¸£°Ô ÇÏ±â À§ÇØ
+    ios_base::sync_with_stdio(0); //ì…ì¶œë ¥ ì†ë„ ë¹ ë¥´ê²Œ í•˜ê¸° ìœ„í•´
     cin.tie(0);
     cout.tie(0);
 
     int n;
     cin >> n;
 
-    priority_queue<int, vector<int>, less<int>> max_heap; //¿À¸§Â÷¼ø ÃÖ´ë Èü ¼±¾ğ
-    priority_queue<int, vector<int>, greater<int>> min_heap; //³»¸²Â÷¼ø ÃÖ¼Ò Èü ¼±¾ğ
+    priority_queue<int, vector<int>, less<int>> max_heap; //ì˜¤ë¦„ì°¨ìˆœ ìµœëŒ€ í™ ì„ ì–¸
+    priority_queue<int, vector<int>, greater<int>> min_heap; //ë‚´ë¦¼ì°¨ìˆœ ìµœì†Œ í™ ì„ ì–¸
 
     while (n--) {
         int input;
-        cin >> input; //ÀÔ·Â ¹Ş±â
-        if (max_heap.size() == min_heap.size()) { //ÃÖ´ë Èü°ú ÃÖ¼ÒÈü ¹ø°¥¾Æ°¡¸ç ¿ø¼Ò »ğÀÔ
+        cin >> input; //ì…ë ¥ ë°›ê¸°
+        if (max_heap.size() == min_heap.size()) { //ìµœëŒ€ í™ê³¼ ìµœì†Œí™ ë²ˆê°ˆì•„ê°€ë©° ì›ì†Œ ì‚½ì…
             max_heap.push(input);
         }
         else {
             min_heap.push(input);
         }
 
-        if (!max_heap.empty() && !min_heap.empty()) { //ÃÖ´ë Èü°ú ÃÖ¼Ò Èü µÑ ´Ù ºñ¾îÀÖÁö ¾Ê´Ù¸é
-            if (max_heap.top() > min_heap.top()) { //ÃÖ´ëÈüÀÇ Ã¹¹øÂ° ¿ø¼Ò°¡ ÃÖ¼ÒÈüÀÇ Ã¹¹øÂ° ¿ø¼Òº¸´Ù Å©´Ù¸é
-                max_heap.push(min_heap.top()); //ÃÖ¼ÒÈüÀÇ Ã¹¹øÂ° ¿ø¼Ò¸¦ ÃÖ´ëÈü¿¡ »ğÀÔ
-                min_heap.pop(); //ÃÖ¼ÒÈüÀÇ Ã¹¹øÂ° ¿ø¼Ò »èÁ¦
-                min_heap.push(max_heap.top()); //ÃÖ´ëÈüÀÇ Ã¹¹øÂ° ¿ø¼Ò¸¦ ÃÖ¼ÒÈü¿¡ »ğÀÔ
-                max_heap.pop(); //ÃÖ´ëÈüÀÇ Ã¹¹ø¤Š ¿ø¼Ò »èÁ¦
-            } //°á±¹ °¢ ÃÖ¼ÒÈü°í ÃÖ´ëÈüÀÇ Ã¹¹øÂ° ¿ø¼Ò¸¦ ¹Ù²ãÁÜ
+        if (!max_heap.empty() && !min_heap.empty()) { //ìµœëŒ€ í™ê³¼ ìµœì†Œ í™ ë‘˜ ë‹¤ ë¹„ì–´ìˆì§€ ì•Šë‹¤ë©´
+            if (max_heap.top() > min_heap.top()) { //ìµœëŒ€í™ì˜ ì²«ë²ˆì§¸ ì›ì†Œê°€ ìµœì†Œí™ì˜ ì²«ë²ˆì§¸ ì›ì†Œë³´ë‹¤ í¬ë‹¤ë©´
+                max_heap.push(min_heap.top()); //ìµœì†Œí™ì˜ ì²«ë²ˆì§¸ ì›ì†Œë¥¼ ìµœëŒ€í™ì— ì‚½ì…
+                min_heap.pop(); //ìµœì†Œí™ì˜ ì²«ë²ˆì§¸ ì›ì†Œ ì‚­ì œ
+                min_heap.push(max_heap.top()); //ìµœëŒ€í™ì˜ ì²«ë²ˆì§¸ ì›ì†Œë¥¼ ìµœì†Œí™ì— ì‚½ì…
+                max_heap.pop(); //ìµœëŒ€í™ì˜ ì²«ë²ˆì§¸ ì›ì†Œ ì‚­ì œ
+            } //ê²°êµ­ ê° ìµœì†Œí™ê³  ìµœëŒ€í™ì˜ ì²«ë²ˆì§¸ ì›ì†Œë¥¼ ë°”ê¿”ì¤Œ
         }
-        cout << max_heap.top() << "\n"; // ÃÖ´ëÈüÀÇ Ã¹¹øÂ° ¿ø¼Ò Ãâ·Â
+        cout << max_heap.top() << "\n"; // ìµœëŒ€í™ì˜ ì²«ë²ˆì§¸ ì›ì†Œ ì¶œë ¥
     }
     return 0;
 
