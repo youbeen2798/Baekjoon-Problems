@@ -22,8 +22,8 @@ int main() {
 	cin >> n;
 
 	int a, b, k, m;
-	int gcf; //�ִ�����
-	int lcm; //�ּҰ����
+	int gcf; //ÃÖ´ë°ø¾à¼ö
+	int lcm; //ÃÖ¼Ò°ø¹è¼ö
 	for (int i = 0; i < n; i++) {
 		cin >> a >> b;
 
