@@ -1,10 +1,10 @@
-//N°³ÀÇ ÀÚ¿¬¼ö¿Í ÀÚ¿¬¼ö MÀÌ ÁÖ¾îÁ³À» ¶§,
-//¾Æ·¡ Á¶°ÇÀ» ¸¸Á·ÇÏ´Â ±æÀÌ°¡ MÀÎ ¼ö¿­À» ¸ðµÎ ±¸ÇÏ´Â ÇÁ·Î±×·¥
-//N°³ÀÇ ÀÚ¿¬¼ö´Â ¸ðµÎ ´Ù¸¥ ¼ö
-//°í¸¥ ¼ö¿­Àº ¿À¸§Â÷¼øÀÌ¾î¾ß ÇÔ
-//¼ö¿­Àº »çÀü ¼øÀ¸·Î Áõ°¡ÇÏ´Â ¼ø¼­·Î Ãâ·ÂÇØ¾ß ÇÔ
-// Áßº¹µÇ´Â ¼ö¿­À» ¿©·¯ ¹ø Ãâ·ÂÇÏ¸é ¾ÈµÊ
-// °¢ ¼ö¿­Àº °ø¹éÀ» ±¸ºÐÇØ¼­ Ãâ·Â
+//Nê°œì˜ ìžì—°ìˆ˜ì™€ ìžì—°ìˆ˜ Mì´ ì£¼ì–´ì¡Œì„ ë•Œ,
+//ì•„ëž˜ ì¡°ê±´ì„ ë§Œì¡±í•˜ëŠ” ê¸¸ì´ê°€ Mì¸ ìˆ˜ì—´ì„ ëª¨ë‘ êµ¬í•˜ëŠ” í”„ë¡œê·¸ëž¨
+//Nê°œì˜ ìžì—°ìˆ˜ëŠ” ëª¨ë‘ ë‹¤ë¥¸ ìˆ˜
+//ê³ ë¥¸ ìˆ˜ì—´ì€ ì˜¤ë¦„ì°¨ìˆœì´ì–´ì•¼ í•¨
+//ìˆ˜ì—´ì€ ì‚¬ì „ ìˆœìœ¼ë¡œ ì¦ê°€í•˜ëŠ” ìˆœì„œë¡œ ì¶œë ¥í•´ì•¼ í•¨
+// ì¤‘ë³µë˜ëŠ” ìˆ˜ì—´ì„ ì—¬ëŸ¬ ë²ˆ ì¶œë ¥í•˜ë©´ ì•ˆë¨
+// ê° ìˆ˜ì—´ì€ ê³µë°±ì„ êµ¬ë¶„í•´ì„œ ì¶œë ¥
 
 #include <iostream>
 #include <vector>
@@ -19,15 +19,15 @@ bool isused[10001];
 void func(int k, vector <int> vs) { //0
 	if (k == m) {						
 		for (int i = 0; i < m; i++) {     
-			cout << arr[i] << ' ';   // cout << arr[0] 1 << arr[1] 2
+			cout << arr[i] << ' ';  
 		}
 		cout << "\n";
 		return;
 	}
 	else {
 		for (int i = 0; i < n ; i++) {
-				arr[k] = vs[i]; //arr[0] = 1   arr[1] = 1;  arr[1] = 4
-				func(k+1, vs); //func(1,vs)	   func(2,vs)   func(2,vs)
+				arr[k] = vs[i]; 
+				func(k+1, vs); 
 		}
 	}
 }
@@ -47,7 +47,7 @@ int main() {
 
 	sort(v.begin(), v.end());
 
-	end_value = v[n - 1]; //9
+	end_value = v[n - 1];
 
 	func(0, v);
 
