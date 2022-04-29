@@ -1,7 +1,7 @@
-//N°³ÀÇ ÀÚ¿¬¼ö¿Í ÀÚ¿¬¼ö MÀÌ ÁÖ¾îÁ³À» ¶§,
-// ±æÀÌ°¡ MÀÎ ¼ö¿­À» ¸ðµÎ ±¸ÇÏ´Â ÇÁ·Î±×·¥
-// °°Àº ¼ö¸¦ ¿©·¯ ¹ø °ñ¶óµµ µÊ
-// °í¸¥ ¼ö¿­Àº ºñ³»¸²Â÷¼øÀÌ¾î¾ß ÇÔ
+//Nê°œì˜ ìžì—°ìˆ˜ì™€ ìžì—°ìˆ˜ Mì´ ì£¼ì–´ì¡Œì„ ë•Œ,
+// ê¸¸ì´ê°€ Mì¸ ìˆ˜ì—´ì„ ëª¨ë‘ êµ¬í•˜ëŠ” í”„ë¡œê·¸ëž¨
+// ê°™ì€ ìˆ˜ë¥¼ ì—¬ëŸ¬ ë²ˆ ê³¨ë¼ë„ ë¨
+// ê³ ë¥¸ ìˆ˜ì—´ì€ ë¹„ë‚´ë¦¼ì°¨ìˆœì´ì–´ì•¼ í•¨
 
 #include <iostream>
 #include <vector>
@@ -31,7 +31,7 @@ void func(int k, vector <int> vs) {
 
 int main() {
 	
-	ios_base::sync_with_stdio(0);
+	ios_base::sync_with_stdio(0); //ìž…ì¶œë ¥ ë¹ ë¥´ê²Œ
 	cin.tie(0);
 	cout.tie(0);
 
