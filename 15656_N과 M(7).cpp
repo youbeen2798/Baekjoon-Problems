@@ -8,15 +8,12 @@
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
 
-int n, m, end_value;
-int arr[8] = { 0, };
-bool isused[10001];
+int n, m;
+int arr[8];
 
-
-void func(int k, vector <int> vs) { //0
+void func(int k, vector <int> vs) {
 	if (k == m) {						
 		for (int i = 0; i < m; i++) {     
 			cout << arr[i] << ' ';  
@@ -46,8 +43,6 @@ int main() {
 	}
 
 	sort(v.begin(), v.end());
-
-	end_value = v[n - 1];
 
 	func(0, v);
 
