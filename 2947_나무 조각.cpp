@@ -5,7 +5,7 @@ using namespace std;
 int temp;
 
 int main() {
-	ios_base::sync_with_stdio(0); //ÀÔÃâ·Â ºü¸£°Ô
+	ios_base::sync_with_stdio(0); //ìž…ì¶œë ¥ ë¹ ë¥´ê²Œ
 	cin.tie(0);
 	cout.tie(0);
 
