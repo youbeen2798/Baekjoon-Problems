@@ -1,5 +1,5 @@
-//BFS È¤Àº DFS·Î Çª´Â ¹®Á¦ 
-//¾Æ·¡ ÄÚµå´Â BFS¸¦ È°¿ëÇÔ
+//BFS í˜¹ì€ DFSë¡œ í‘¸ëŠ” ë¬¸ì œ 
+//ì•„ëž˜ ì½”ë“œëŠ” BFSë¥¼ í™œìš©í•¨
 
 
 #include <iostream>
