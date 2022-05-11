@@ -4,21 +4,25 @@ using namespace std;
 
 int N, S;
 int arr[20];
-/*
-void numOfSubset(int idx, int sum) {
+int result = 0;
+
+void subSet(int idx, int sum) {
+
+	if (idx >= N)
+		return;
+
 	sum += arr[idx];
-
+	
 	if (sum == S)
-		result;
+		result++;
 
-	//ÇØ´ç ¿ø¼Ò¸¦ ³ÖÀº °æ¿ì
-	numOfSubset(idx + 1, sum);
+	//í•´ë‹¹ ì›ì†Œë¥¼ ë„£ì€ ê²½ìš°
+	subSet(idx + 1, sum);
 
-	//ÇØ´ç ¿ø¼Ò¸¦ ³ÖÁö ¾ÊÀº °æ¿ì
-	numOfSubset(idx + 1, sum - arr[idx]);
-
+	//í•´ë‹¹ ì›ì†Œë¥¼ ë„£ì€ ê²½ìš°
+	subSet(idx + 1, sum - arr[idx]);
 }
-*/
+
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
@@ -30,8 +34,7 @@ int main() {
 		cin >> arr[i];
 	}
 
-	for (int i = 0; i < 20; i++) {
-		cout << arr[i];
-	}
-
+	 subSet(0, 0);
+	 
+	 cout << result;
 }
