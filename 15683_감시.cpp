@@ -20,7 +20,7 @@ void update(int dir, CAM c) {
 
 	dir %= 4;
 
-	if (dir == 0) { //¿À¸¥ÂÊ
+	if (dir == 0) { //ì˜¤ë¥¸ìª½
 		for (int y = c.y + 1; y < col; y++) {
 			if (office[c.x][y] == 6) {
 				break;
@@ -28,7 +28,7 @@ void update(int dir, CAM c) {
 			office[c.x][y] = -1;
 		}
 	}
-	else if (dir == 1) { //À§ÂÊ
+	else if (dir == 1) { //ìœ„ìª½
 		for (int x = c.x - 1; x >= 0; x--) {
 			if (office[x][c.y] == 6) {
 				break;
@@ -36,7 +36,7 @@ void update(int dir, CAM c) {
 			office[x][c.y] = -1;
 		}
 	}
-	else if (dir == 2) { //¿ÞÂÊ
+	else if (dir == 2) { //ì™¼ìª½
 		for (int y = c.y - 1; y >= 0; y--) {
 			if (office[c.x][y] == 6) {
 				break;
@@ -44,7 +44,7 @@ void update(int dir, CAM c) {
 			office[c.x][y] = -1;
 		}
 	}
-	else if (dir == 3) { //¾Æ·¡ÂÊ
+	else if (dir == 3) { //ì•„ëž˜ìª½
 		for (int x = c.x + 1; x < row; x++) {
 			if (office[x][c.y] == 6) {
 				break;
@@ -88,15 +88,7 @@ void solve(int cam_idx) {
 
 		copy(backup, office);
 
-		cout << "cam_idx: " << cam_idx << "\n";
-		cout << "dir: " << dir << "\n";
-		cout << "Àü backup" << "\n";
-		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < col; j++) {
-				cout << backup[i][j] << ' ';
-			}
-			cout << "\n";
-		}
+		
 		if (type == 0) {
 			update(dir, cam[cam_idx]);
 		}
