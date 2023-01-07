@@ -1,380 +1,143 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
-#include <cstring>
-
 using namespace std;
 
 int n, m;
-int map[51][51];
-bool cloud[51][51] = { true, };
+int arr[51][51];
 
-int dx[4] = { 1,1,-1,-1 };
-int dy[4] = { 1, -1,-1,1 };
+vector<pair<int, int>> clouds;
 
-//1번. 모든 그룸이 이동
-vector <pair<int,int>>  move_cloud(int di, int si, vector <pair<int,int>> a) {
-	if (di == 1) { //왼쪽으로 //열 감소
-		for (int i = 0; i < a.size(); i++) {
-			a[i].second -= si;
+int dx[9] = { 0, 0, -1, -1,-1, 0, 1, 1, 1 };
+int dy[9] = { 0, -1,-1, 0, 1,  1, 1, 0, -1 };
 
-			while (1) {
-				if (a[i].second <= 0) {
-					a[i].second += n;
-				}
-				else {
-					break;
-				}
-			}
+int diagonal_dx[4] = { -1,-1,1,1 };
+int diagonal_dy[4] = { -1,1,-1,1 };
 
-			while (1) {
-				if (n < a[i].second) {
-					a[i].second -= n;
-				}
-				else {
-					break;
-				}
-			}
+pair<int,int> check_in_range(int nx, int ny) {
+	if (n < nx) {
+		nx = nx % n;
+		if (nx == 0) {
+			nx = n;
 		}
-
-		return a;
-
 	}
-	if (di == 2) { //왼쪽 위 대각선으로 //행 감소 열 감소
-		for (int i = 0; i < a.size(); i++) {
-			a[i].first -= si;
-			a[i].second -= si;
-
-			while (1) {
-				if (a[i].second <= 0) {
-					a[i].second += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].second) {
-					a[i].second -= n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (a[i].first <= 0) {
-					a[i].first += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].first) {
-					a[i].first -= n;
-				}
-				else {
-					break;
-				}
-			}
+	else if (nx < 1) {
+		nx = n - abs(nx) % n;
+	}
+	
+	
+	if (n < ny) {
+		ny = ny % n;
+		if (ny == 0) {
+			ny = n;
 		}
-		return a;
-
 	}
-	if (di == 3) { //위쪽으로 //행 감소
-		for (int i = 0; i < a.size(); i++) {
-			a[i].first -= si;
-
-			while (1) {
-				if (a[i].first <= 0) {
-					a[i].first += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].first) {
-					a[i].first -= n;
-				}
-				else {
-					break;
-				}
-			}
-		}
-		return a;
-
+	else if (ny < 1) {
+		ny = n - abs(ny) % n;
 	}
-	if (di == 4) { //오른쪽 위 대각선으로 //행 감소 열 증가
-		for (int i = 0; i < a.size(); i++) {
-			a[i].first -= si;
-			a[i].second += si;
-
-			while (1) {
-				if (a[i].second <= 0) {
-					a[i].second += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].second) {
-					a[i].second -= n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (a[i].first <= 0) {
-					a[i].first += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].first) {
-					a[i].first -= n;
-				}
-				else {
-					break;
-				}
-			}
-		}
-		return a;
-	}
-	if (di == 5) { //오른쪽으로 //열 증가
-		for (int i = 0; i < a.size(); i++) {
-			a[i].second += si;
-
-			while (1) {
-				if (a[i].second <= 0) {
-					a[i].second += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].second) {
-					a[i].second -= n;
-				}
-				else {
-					break;
-				}
-			}
-		}
-		return a;
-	}
-	if (di == 6) { //오른쪽 아래 대각선으로 //행 증가 열 증가
-		for (int i = 0; i < a.size(); i++) {
-			a[i].first += si;
-			a[i].second += si;
-
-			while (1) {
-				if (a[i].second <= 0) {
-					a[i].second += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].second) {
-					a[i].second -= n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (a[i].first <= 0) {
-					a[i].first += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].first) {
-					a[i].first -= n;
-				}
-				else {
-					break;
-				}
-			}
-		}
-		return a;
-	}
-	if (di == 7) { //아래로 //행 증가
-		for (int i = 0; i < a.size(); i++) {
-			a[i].first += si;
-
-
-			while (1) {
-				if (a[i].first <= 0) {
-					a[i].first += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].first) {
-					a[i].first -= n;
-				}
-				else {
-					break;
-				}
-			}
-		}
-		return a;
-
-	}
-	if (di == 8) { //왼쪽 아래 대각선으로 //행 증가 열 감소
-		for (int i = 0; i < a.size(); i++) {
-			a[i].first += si;
-			a[i].second -= si;
-
-			while (1) {
-				if (a[i].second <= 0) {
-					a[i].second += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].second) {
-					a[i].second -= n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (a[i].first <= 0) {
-					a[i].first += n;
-				}
-				else {
-					break;
-				}
-			}
-
-			while (1) {
-				if (n < a[i].first) {
-					a[i].first -= n;
-				}
-				else {
-					break;
-				}
-			}
-		}
-		return a;
-	}
+	
+	return { nx,ny };
 }
-//2번. 각 구름에서 비가 내려 구름이 있는 칸의 바구니에 저장된 물이 1 증가
-void waterplusone(vector <pair<int, int>> a) {
-	for (int i = 0; i < a.size(); i++) {
-		map[a[i].first][a[i].second]++;
-	}
-}
-
-void bugma(vector <pair<int, int>> a) {
-
-	for (int i = 0; i < a.size(); i++) {
-		int cnt = 0;
+void cloud_move(int di, int si) {
+	//구름이 di방향으로 si칸 이동한다.
+	for (int i = 0; i < clouds.size(); i++) {
+		int nx = clouds[i].first + dx[di] * si;
+		int ny = clouds[i].second + dy[di] * si;
 		
-		for (int j = 0; j < 4; j++) {
-
-			int new_x = a[i].first + dx[j];
-			int new_y = a[i].second + dy[j];
-
-			if (1 <= new_x && new_x <= n && 1 <= new_y && new_y <= n && map[new_x][new_y] != 0) {
-				cnt++;
-			}
-		}
-
-		map[a[i].first][a[i].second] += cnt;
+		clouds[i] = check_in_range(nx, ny);
 	}
 }
+
+void rain() {
+	//저장된 물의 양 1 증가
+	for (int i = 0; i < clouds.size(); i++) {
+		arr[clouds[i].first][clouds[i].second]++;
+	}
+}
+
+void magic() {
+
+	vector<int> nums;
+	for (int i = 0; i < clouds.size(); i++) {
+
+		int num = 0;
+		for (int j = 0; j < 4; j++) {
+			int nx = clouds[i].first + diagonal_dx[j];
+			int ny = clouds[i].second + diagonal_dy[j];
+
+			if (1 <= nx && nx <= n && 1 <= ny && ny <= n && arr[nx][ny] > 0) {
+				num++;
+			}
+		}
+		nums.push_back(num);
+	}
+
+	for (int i = 0; i < clouds.size(); i++) {
+		arr[clouds[i].first][clouds[i].second] += nums[i];
+	}
+}
+
+void make_cloud() {
+
+	vector<pair<int, int>> tmp = clouds;
+	clouds.clear();
+
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			pair<int, int> a = { i,j }; 
+			if (arr[i][j] >= 2 && find(tmp.begin(), tmp.end(), a) == tmp.end()) {
+				clouds.push_back({ i,j });
+				arr[i][j] -= 2; 
+			}
+		}
+	}
+}
+void solution(int di, int si) {
+
+	cloud_move(di, si);
+
+	rain();
+	magic(); //마법 시전
+	make_cloud();
+}
+
+
+
+void output() {
+	int ans = 0;
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			ans += arr[i][j];
+		}
+	}
+	cout << ans;
+}
+void input() {
+	cin >> n >> m;
+
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			cin >> arr[i][j];
+		}
+	}
+
+	clouds.push_back({ n,1 });
+	clouds.push_back({ n,2 });
+	clouds.push_back({ n - 1,1 });
+	clouds.push_back({ n - 1,2 });
+	
+	for (int i = 0; i < m; i++) {
+		int di, si;
+		cin >> di >> si;
+		solution(di, si);
+
+	}
+	output();
+ }
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	cin >> n >> m;
-
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			cin >> map[i][j];
-		}
-	}
-
-	vector <pair<int, int>> a;
-
-	a.push_back({ n,1 });
-	a.push_back({ n,2 });
-	a.push_back({ n-1,1 });
-	a.push_back({ n-1,2 });
-
-
-	for (int i = 0; i < m; i++) {
-		int di, si;
-		cin >> di >> si;
-		a = move_cloud(di, si, a);
-		waterplusone(a);
-		bugma(a);
-
-		vector <pair<int, int>> b;
-
-		memset(cloud, true, sizeof(cloud));
-
-		for (int j = 0; j < a.size(); j++) {
-			cloud[a[j].first][a[j].second] = false;
-		}
-
-		a.clear();
-
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (cloud[i][j]) {
-					if (map[i][j] >= 2) {
-						a.push_back({ i,j }); //구름이 있는 곳
-						map[i][j] -= 2;
-					}
-					else {
-						cloud[i][j] = false;
-					}
-				}
-			}
-		}
-	}
-
-	int answer = 0;
-
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			answer += map[i][j];
-		}
-	}
-	
-	cout << answer;
-
-	
+	input();
 }
