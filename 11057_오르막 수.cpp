@@ -1,41 +1,44 @@
 #include <iostream>
+#define N 10007
 
 using namespace std;
 
-int dp[1001][1001];
+int dp[1001][10];
 int n;
 
-int solution(int n) { //n = 2¶ó °¡Á¤
-
-	for (int j = 2; j <= n; j++) {
-		dp[j][0] = dp[j - 1][0];
-		for (int k = 1; k <= 9; k++) {
-			dp[j][k] = dp[j][k - 1] + dp[j - 1][k];
-			dp[j][k] %= 10007;
-		}
-	}
-
-	int sum = 0;
-	for (int k = 0; k <= 9; k++) {
-		sum += dp[n][k];
-	}
-	return sum;
-}
-int main() {
-	ios_base::sync_with_stdio(0); 
-	cin.tie(0); 
-	cout.tie(0);
-
-	cin >> n;
+void solution() {
 
 	for (int i = 0; i <= 9; i++) {
 		dp[1][i] = 1;
 	}
 
-	if (n == 1) {
-		cout << 10;
+	for (int i = 1; i <= n; i++) {
+		dp[i][0] = 1;
 	}
-	else {
-		cout << solution(n) % 10007;
+
+	for (int i = 2; i <= n; i++) {
+		for (int j = 1; j <= 9; j++) {
+			dp[i][j] = (dp[i][j - 1] + dp[i - 1][j]) % N;
+		}
 	}
+
+	long ans = 0;
+	for (int i = 0; i <= 9; i++) {
+		ans += dp[n][i];
+	}
+
+	cout << ans % N;
+}
+
+void input() {
+	cin >> n;
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+
+	input();
+	solution();
 }
