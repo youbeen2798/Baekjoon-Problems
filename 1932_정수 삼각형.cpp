@@ -3,35 +3,44 @@
 using namespace std;
 
 int n;
-int cost[501];
-int tri[501][501];
+int arr[501][501];
+int dp[501][501];
+int ans = 0;
+void solution() {
+
+	dp[1][1] = arr[1][1];
+
+	for (int i = 2; i <= n; i++) {
+		dp[i][1] = dp[i - 1][1] + arr[i][1];
+
+		for (int j = 2; j < i; j++) {
+			dp[i][j] = max(dp[i - 1][j - 1], dp[i - 1][j]) + arr[i][j];
+		}
+		dp[i][i] = dp[i - 1][i - 1] + arr[i][i];
+	}
+
+	for (int i = 1; i <= n; i++) {
+		ans = max(ans, dp[n][i]);
+	}
+	cout << ans;
+}
+void input() {
+	cin >> n;
+
+	for (int i = 1; i <= n; i++) {
+		//i 
+		for (int j = 1; j <= i; j++) {
+			cin >> arr[i][j]; 
+			//0 0
+			//1 0 // 1 1
+		}
+	}
+}
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	cin >> n;
-	
-	for (int i = 0; i < 501; i++) {
-		tri[0][i] = 0;
-	}
-
-	for (int i = 1; i <= n; i++) {
-		for (int j = 0; j < i; j++) {
-			cin >> cost[j]; 
-		}
-
-		tri[i][0] = tri[i - 1][0] + cost[0];
-		for (int j = 1; j < i - 1; j++) {
-			tri[i][j] = max(tri[i - 1][j - 1], tri[i - 1][j]) + cost[j];
-		}
-		tri[i][i - 1] = tri[i - 1][i - 2] + cost[i - 1];
-	}
-
-	int max = 0;
-	for (int i = 0; i < n; i++) {
-		if (max < tri[n][i])
-			max = tri[n][i];
-	}
-	cout << max;
+	input();
+	solution();
 }
