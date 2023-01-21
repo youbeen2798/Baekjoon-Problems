@@ -1,116 +1,116 @@
 #include <iostream>
 #include <queue>
-#include <vector>
-#include <cstring>
-
 using namespace std;
 
-int n, m;
-int board[21][21];
-bool visited[21][21];
-int dist[21][21];
-int answer = 0;
+int n;
+pair<int, int> baby_shark; //아기 상어
+int baby_shark_size = 2; //아기 상어 크기
+int stomache = 0; //물고기가 먹은 크기
 
-pair<int, int> shark;
-int shark_size = 2;
+int arr[21][21];
+bool visited[21][21];
 
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
+int times = 0;
 
-int bfs(int x, int y, int shark_x, int shark_y) { //1 0 3 0
+struct position {
+	int x; //행
+	int y; //열
+};
 
-	queue <pair<int, int>> q;
-	memset(dist, 0, sizeof(dist));
-	memset(visited, 0, sizeof(visited));
+bool compare(pair<int, position> a, pair<int, position> b) {
+	if (a.first != b.first) { //거리가 다르다면
+		return a.first < b.first; //거리를 오름차순으로
+	}
+	if (a.second.x != b.second.x) { //행이 다르다면
+		return a.second.x < b.second.x; //행을 오름차순으로
+	}
+	return a.second.y < b.second.y; //열을 오름차순으로
+}
 
-	visited[x][y] = true;
-	q.push({ x,y }); //1 0
-	dist[x][y] = 0;
+void eat_fish() {
+	//먹을 수 있는 물고기 고르기
+
+	vector<pair<int, position>> can_eat_fish; //먹을 수 있는 물고기들
+	memset(visited, false, sizeof(visited));
+
+	int min_dist = 999999;
+	queue<pair<int, position>> q;
+	q.push({ 0,{ baby_shark.first, baby_shark.second }});
+	visited[baby_shark.first][baby_shark.second] = true;
 
 	while (!q.empty()) {
-		int a = q.front().first; //1
-		int b = q.front().second; //0
+		int dist = q.front().first; //거리
+		int x = q.front().second.x; //위치 행
+		int y = q.front().second.y; //위치 열
 
 		q.pop();
 
 		for (int i = 0; i < 4; i++) {
-			int nx = a + dx[i];
-			int ny = b + dy[i];
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+			if (0 <= nx && nx < n && 0 <= ny && ny < n && !visited[nx][ny] && arr[nx][ny] <= baby_shark_size) {
+				visited[nx][ny] = true;
+				q.push({ dist + 1, {nx,ny} });
 
-			if (0 <= nx && nx < n && 0 <= ny && ny < n && visited[nx][ny] == false) {
-				if (board[nx][ny] <= shark_size || board[nx][ny] == 9) {
-					q.push({ nx,ny });
-					visited[nx][ny] = true;
-					dist[nx][ny] = dist[a][b] + 1;
-
-					if (nx == shark_x && ny == shark_y) {
-						return dist[nx][ny];
-					}
-				}
-			}
-		}
-	}
-
-	return 0; //지나갈 수 없을 때
-
-
-}
-void solve() {
-
-	vector <pair<int, int>> fish;
-	int min_fish_dist = 0;
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			if (board[i][j] != 0 && board[i][j] < shark_size) {
-				int dist = bfs(i, j, shark.first, shark.second);
-				if (dist == 0) { //지나갈 수 없을 때
+				if (arr[nx][ny] == baby_shark_size || arr[nx][ny] == 0) {
+					//크기가 같거나 빈칸이면 그냥 지나가기
 					continue;
 				}
-				if (min_fish_dist == 0) { //만약 처음 물고기라면
-					fish.push_back({ i,j }); //물고기 벡터에 넣어줌
-					min_fish_dist = dist;
+				if (dist + 1 < min_dist) {
+					//최소거리 보다 더 작다면
+					can_eat_fish.clear();
+					min_dist = dist + 1;
+					can_eat_fish.push_back({ dist + 1, {nx,ny} });
 				}
-				else { //처음 물고기가 아니라면
-					if (min_fish_dist == dist) { //이전에 있는 물고기와 거리가 같다면
-						fish.push_back({ i,j }); //넣어줌
-					}
-					else if (min_fish_dist > dist) { //이전에 넣은 물고기의 거리가 더 크다면
-						fish.clear(); //물고기 벡터 삭제
-						fish.push_back({ i,j }); //지금 물고기 넣어줌
-						min_fish_dist = dist;
-					}
+				else if (dist + 1 == min_dist) {
+					//최소거리와 같다면
+					can_eat_fish.push_back({ dist + 1, {nx,ny} });
 				}
 			}
 		}
 	}
 
-	if (fish.size() > 0) {
-		answer += min_fish_dist;
-	}
-	else {
-		cout << answer;
+	if (can_eat_fish.size() == 0) {
+		//먹을 수 있는 물고기가 없다면
+		cout << times;
 		exit(0);
-
 	}
+	sort(can_eat_fish.begin(), can_eat_fish.end(), compare);
 
+	int eaten_fish_x = can_eat_fish[0].second.x;
+	int eaten_fish_y = can_eat_fish[0].second.y;
+	int dist = can_eat_fish[0].first;
 
-	board[fish[0].first][fish[0].second] = 9; //물고기 먹어서 사라짐
-	board[shark.first][shark.second] = 0; //상어가 이동하므로 상어 원래 위치는 빈칸이됨
-	shark.first = fish[0].first;
-	shark.second = fish[0].second; //사엉 위치 바꾸기
+	arr[baby_shark.first][baby_shark.second] = 0;
+	baby_shark = { eaten_fish_x, eaten_fish_y }; //아기 상어 위치
+	arr[eaten_fish_x][eaten_fish_y] = 9; //먹은 물고기 자리에 아기 상어가 이동
+	times += dist;
 
-
+	if (++stomache == baby_shark_size) {
+		baby_shark_size++; //아기 상어 크기 커짐
+		stomache = 0;
+	}
 }
+
+void solution() {
+
+	while (true) {
+		memset(visited, false, sizeof(visited));
+
+		eat_fish();
+	}
+}
+
 void input() {
 	cin >> n;
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			cin >> board[i][j];
-			if (board[i][j] == 9) {
-				shark.first = i;
-				shark.second = j;
+			cin >> arr[i][j];
+			if (arr[i][j] == 9) {
+				baby_shark = { i,j }; //아기 상어
 			}
 		}
 	}
@@ -121,12 +121,5 @@ int main() {
 	cout.tie(0);
 
 	input();
-
-	for (int i = 2;; i++) { //물고기 사이즈만큼 
-		for (int j = 0; j < i; j++) { //3		
-			solve();
-		}
-		shark_size = i + 1; //4
-	}
-
+	solution();
 }
