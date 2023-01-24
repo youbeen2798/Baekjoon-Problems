@@ -3,231 +3,175 @@
 using namespace std;
 
 int n;
-int arr[500][500];
-int before = 0;
+int original_amount = 0;
+long arr[500][500];
+int current_x ;
+int current_y;
 
-void move(int start_x, int start_y, int direction) {
-	int amount;
-	if (direction == 1) { //왼쪽
-		amount = arr[start_x][start_y - 1];
-		arr[start_x][start_y - 1] = 0;
+int spread(int total_amount, int x, int y, int amount) {
+	
+	int spread_amount = total_amount * amount / 100;
+	if (0 <= x && x < n && 0 <= y && y < n) {
+		arr[x][y] += spread_amount;
 	}
-	else if (direction == 2) { //아래쪽
-		amount = arr[start_x + 1][start_y];
-		arr[start_x + 1][start_y] = 0;
-	}
-	else if (direction == 3) { //오른쪽
-		amount = arr[start_x][start_y + 1];
-		arr[start_x][start_y + 1] = 0;
-	}
-	else if (direction == 4) { //위쪽
-		amount = arr[start_x - 1][start_y];
-		arr[start_x - 1][start_y] = 0;
-	}
-	int remain_y = amount;
-	int onepercent = amount * 0.01;
-	int sevenpercent = amount * 0.07;
-	int tenpercent = amount * 0.1;
-	int twopercent = amount * 0.02;
-	int fivepercent = amount * 0.05;
-	remain_y -= ((onepercent + sevenpercent + tenpercent + twopercent) * 2 + fivepercent);
+	return spread_amount;
+}
 
-	if (direction == 1) { //왼쪽
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x - 1][start_y] += onepercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x + 1][start_y] += onepercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x - 1][start_y - 1] += sevenpercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x + 1][start_y - 1] += sevenpercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y - 2 && start_y - 2 <= n) {
-			arr[start_x - 1][start_y - 2] += tenpercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y - 2 && start_y - 2 <= n) {
-			arr[start_x + 1][start_y - 2] += tenpercent;
-		}
-		if (1 <= start_x && start_x <= n && 1 <= start_y - 3 && start_y - 3 <= n) {
-			arr[start_x][start_y - 3] += fivepercent;
-		}
-		if (1 <= start_x - 2 && start_x - 2 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x - 2][start_y - 1] += twopercent;
-		}
-		if (1 <= start_x + 2 && start_x + 2 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x + 2][start_y - 1] += twopercent;
-		}
-		if (1 <= start_x && start_x <= n && 1 <= start_y - 2 && start_y - 2 <= n) {
-			arr[start_x][start_y - 2] += remain_y;
-		}
+void left() {
 
-	}
-	else if (direction == 2) { //아래쪽
-		if (1 <= start_x && start_x <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x][start_y - 1] += onepercent;
-		}
-		if (1 <= start_x && start_x <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x][start_y + 1] += onepercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x + 1][start_y - 1] += sevenpercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x + 1][start_y + 1] += sevenpercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y - 2 && start_y - 2 <= n) {
-			arr[start_x + 1][start_y - 2] += twopercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y + 2 && start_y + 2 <= n) {
-			arr[start_x + 1][start_y + 2] += twopercent;
-		}
-		if (1 <= start_x + 2 && start_x + 2 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x + 2][start_y - 1] += tenpercent;
-		}
-		if (1 <= start_x + 2 && start_x + 2 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x + 2][start_y + 1] += tenpercent;
-		}
-		if (1 <= start_x + 3 && start_x + 3 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x + 3][start_y] += fivepercent;
-		}
-		if (1 <= start_x + 2 && start_x + 2 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x + 2][start_y] += remain_y;
-		}
-	}
-	else if (direction == 3) { //오른쪽
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x - 1][start_y] += onepercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x + 1][start_y] += onepercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x - 1][start_y + 1] += sevenpercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x + 1][start_y + 1] += sevenpercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y + 2 && start_y + 2 <= n) {
-			arr[start_x - 1][start_y + 2] += tenpercent;
-		}
-		if (1 <= start_x + 1 && start_x + 1 <= n && 1 <= start_y + 2 && start_y + 2 <= n) {
-			arr[start_x + 1][start_y + 2] += tenpercent;
-		}
-		if (1 <= start_x && start_x <= n && 1 <= start_y + 3 && start_y + 3 <= n) {
-			arr[start_x][start_y + 3] += fivepercent;
-		}
-		if (1 <= start_x - 2 && start_x - 2 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x - 2][start_y + 1] += twopercent;
-		}
-		if (1 <= start_x + 2 && start_x + 2 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x + 2][start_y + 1] += twopercent;
-		}
-		if (1 <= start_x && start_x <= n && 1 <= start_y + 2 && start_y + 2 <= n) {
-			arr[start_x][start_y + 2] += remain_y;
-		}
+	int total_num = arr[current_x][current_y - 1];
 
-	}
-	else { //위쪽
-		if (1 <= start_x && start_x <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x][start_y - 1] += onepercent;
-		}
-		if (1 <= start_x && start_x <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x][start_y + 1] += onepercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x - 1][start_y - 1] += sevenpercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x - 1][start_y + 1] += sevenpercent;
-		}
-		if (1 <= start_x - 2 && start_x - 2 <= n && 1 <= start_y - 1 && start_y - 1 <= n) {
-			arr[start_x - 2][start_y - 1] += tenpercent;
-		}
-		if (1 <= start_x - 2 && start_x - 2 <= n && 1 <= start_y + 1 && start_y + 1 <= n) {
-			arr[start_x - 2][start_y + 1] += tenpercent;
-		}
-		if (1 <= start_x - 3 && start_x - 3 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x - 3][start_y] += fivepercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y + 2 && start_y + 2 <= n) {
-			arr[start_x - 1][start_y + 2] += twopercent;
-		}
-		if (1 <= start_x - 1 && start_x - 1 <= n && 1 <= start_y - 2 && start_y - 2 <= n) {
-			arr[start_x - 1][start_y - 2] += twopercent;
-		}
-		if (1 <= start_x - 2 && start_x - 2 <= n && 1 <= start_y && start_y <= n) {
-			arr[start_x - 2][start_y] += remain_y;
-		}
-	}
+	arr[current_x][current_y - 1] = 0;
+
+	int tmp = 0;
+	
+	tmp += spread(total_num, current_x - 1, current_y, 1);
+	tmp += spread(total_num, current_x + 1, current_y, 1);
+
+	tmp += spread(total_num, current_x - 1, current_y - 1, 7);
+	tmp += spread(total_num, current_x + 1, current_y - 1, 7);
+	
+	tmp += spread(total_num, current_x - 2, current_y - 1, 2);
+	tmp += spread(total_num, current_x + 2, current_y - 1, 2);
+	
+	tmp += spread(total_num, current_x - 1, current_y - 2, 10);
+	tmp += spread(total_num, current_x + 1, current_y - 2, 10);
+	
+	tmp += spread(total_num, current_x, current_y - 3, 5);
+
+	spread(total_num - tmp, current_x, current_y - 2, 100);
+
+	current_y--; //열 왼쪽으로 1칸 이동
+}
+
+void right() {
+	int total_num = arr[current_x][current_y + 1];
+	arr[current_x][current_y + 1] = 0;
+
+	int tmp = 0;
+	tmp += spread(total_num, current_x - 1, current_y, 1);
+	tmp +=  spread(total_num, current_x + 1, current_y, 1);
+
+	tmp += spread(total_num, current_x - 1, current_y + 1, 7);
+	tmp += spread(total_num, current_x + 1, current_y + 1, 7);
+
+	tmp += spread(total_num, current_x - 2, current_y + 1, 2);
+	tmp += spread(total_num, current_x + 2, current_y + 1, 2);
+
+	tmp += spread(total_num, current_x - 1, current_y + 2, 10);
+	tmp += spread(total_num, current_x + 1, current_y + 2, 10);
+
+	tmp += spread(total_num, current_x, current_y + 3, 5);
+
+	spread(total_num - tmp, current_x, current_y + 2, 100);
+
+	current_y++; //열 오른쪽으로 1칸 이동
+}
+
+void down() {
+
+	int total_num = arr[current_x + 1][current_y];
+	arr[current_x + 1][current_y] = 0;
+
+	int tmp = 0;
+	tmp += spread(total_num, current_x, current_y - 1, 1);
+	tmp += spread(total_num, current_x, current_y + 1, 1);
+
+	tmp += spread(total_num, current_x + 1, current_y - 1, 7);
+	tmp += spread(total_num, current_x + 1, current_y + 1, 7);
+
+	tmp += spread(total_num, current_x + 1, current_y + 2, 2);
+	tmp += spread(total_num, current_x + 1, current_y - 2, 2);
+
+	tmp += spread(total_num, current_x + 2, current_y + 1, 10);
+	tmp += spread(total_num, current_x + 2, current_y - 1, 10);
+
+	tmp += spread(total_num, current_x + 3, current_y, 5);
+
+	spread(total_num - tmp, current_x + 2, current_y, 100);
+
+	current_x++; //행 아래쪽으로 1칸 이동
+}
+
+void up() {
+
+	int total_num = arr[current_x - 1][current_y];
+	arr[current_x - 1][current_y] = 0;
+
+	int tmp = 0;
+	tmp += spread(total_num, current_x, current_y - 1, 1);
+	tmp += spread(total_num, current_x, current_y + 1, 1);
+
+	tmp += spread(total_num, current_x - 1, current_y - 1, 7);
+	tmp += spread(total_num, current_x - 1, current_y + 1, 7);
+
+	tmp += spread(total_num, current_x - 1, current_y + 2, 2);
+	tmp += spread(total_num, current_x - 1, current_y - 2, 2);
+
+	tmp += spread(total_num, current_x - 2, current_y + 1, 10);
+	tmp += spread(total_num, current_x - 2, current_y - 1, 10);
+
+	tmp += spread(total_num, current_x - 3, current_y, 5);
+
+	spread(total_num - tmp, current_x - 2, current_y, 100);
+
+	current_x--; //행 위쪽으로 1칸 이동
 }
 void input() {
+	
 	cin >> n;
 
-	before = 0;
-
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
 			cin >> arr[i][j];
-			before += arr[i][j];
+			original_amount += arr[i][j];
 		}
 	}
 
+	current_x = n / 2;
+	current_y = n / 2;
 }
 
 void solution() {
-
-	int k = n / 2;
-
-	int mid_x = k + 1;
-	int mid_y = k + 1;
-	int num;
-	//n = 1 ~ n = 3
-	for (int i = 1; i <= k; i++) {
-		num = 2 * i - 1;
-		//왼쪽
-		for (int j = 1; j <= num; j++) {
-			move(mid_x, mid_y--, 1);
+	for (int i = 1; i <= n - 1; i += 2) {
+		//i = 7
+		for (int j = 1; j <= i; j++) {
+			left();
 		}
-		//아래쪽
-		for (int j = 1; j <= num; j++) {
-			move(mid_x++, mid_y, 2);
+		for (int j = 1; j <= i; j++) {
+			down();
 		}
-		num += 1;
-		//오른쪽
-		for (int j = 1; j <= num; j++) {
-			move(mid_x, mid_y++, 3);
+		for (int j = 1; j <= i + 1; j++) {
+			right();
 		}
-		//위쪽
-		for (int j = 1; j <= num; j++) {
-			move(mid_x--, mid_y, 4);
+		for (int j = 1; j <= i + 1; j++) {
+			up();
 		}
 	}
 
-	for (int j = 1; j <= num; j++) {
-		move(mid_x, mid_y--, 1);
+	for (int i = 1; i <= n; i++) {
+		left();
 	}
-
 }
+
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
 	input();
+
+	current_x = n / 2;
+	current_y = n / 2;
 	solution();
 
-	int after = 0;
+	long left_amount = 0;
 
-
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			after += arr[i][j];
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			left_amount += arr[i][j];
 		}
 	}
 
-
-	cout << before - after << "\n";
+	cout << original_amount - left_amount;
 }
