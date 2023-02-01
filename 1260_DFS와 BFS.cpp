@@ -1,72 +1,76 @@
 #include <iostream>
+#include <vector>
 #include <queue>
+#include <cstring>
+#include <algorithm>
 using namespace std;
-#define MAX 1001
 
+int n; //정점 개수
+int m; //간선 개수
+int v; //탐색을 시작할 시작 정점
 
-int N, M, V; //정점개수, 간선개수, 시작정점
-int map[MAX][MAX];
-bool visited[MAX]; //정점 방문 여부
-queue <int> q;
+vector<int> vt[1001];
+bool visited[1001];
+queue<int> q;
 
-void reset() {
-	for (int i = 1; i <= N; i++) {
-		visited[i] = 0;
-	}
-}
+void dfs(int start) {
 
-void DFS(int v) { //1 2
-	visited[v] = true; 
-	cout << v << ' '; //1 2 5 6 3
+	q.push(start);
+	cout << start << " ";
+	visited[start] = true;
 
-	for (int i = 1; i <= N; i++) {
-		if (map[v][i] == 1 && visited[i] == 0) { //현재 정점과 연결되어 있고 방문하지 않았다면
-			DFS(i); //5 6 3
+	for (int i = 0; i < vt[start].size(); i++) {
+		if (!visited[vt[start][i]]) {
+			dfs(vt[start][i]);
 		}
 	}
 }
+void bfs(int start) {
+	queue<int> q;
 
-void BFS(int v) { //1
-	q.push(v); //1
-	visited[v] = true; //1
-	cout << v << ' '; //1
-	
+	memset(visited, false, sizeof(visited));
+
+	q.push(start);
+	visited[start] = true;
+
 	while (!q.empty()) {
-		v = q.front();
+		int a = q.front();
+		cout << a << " ";
 		q.pop();
 
-		for (int i = 1; i <= N; i++) {
-			if (map[v][i] == 1 && visited[i] == 0) {  //현재 정점과 연결되어 있고 방문하지 않았다면
-				q.push(i);
-				visited[i] = true;
-				cout << i << ' ';
+		for (int i = 0; i < vt[a].size(); i++) {
+			int num = vt[a][i];
+
+			if (!visited[num]) {
+				visited[num] = true;
+				q.push(num);
 			}
 		}
 	}
+	cout << "\n";
 }
 
+void input() {
+	cin >> n >> m >> v;
+
+	for (int i = 0; i < m; i++) {
+		int a, b;
+		cin >> a >> b;
+		vt[a].push_back(b);
+		vt[b].push_back(a); 
+	}
+
+	for (int i = 1; i <= 1000; i++) {
+		sort(vt[i].begin(), vt[i].end());
+	}
+}
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	cin >> N >> M >> V;
-
-	for (int i = 0; i < M; i++) {
-		int a, b;
-		cin >> a >> b;
-
-		map[a][b] = 1;
-		map[b][a] = 1;
-	}
-
-	reset();
-	DFS(V);
-	
-	cout << '\n';
-
-	reset();
-	BFS(V);
-
-	return 0;
+	input();
+	dfs(v);
+	cout << "\n";
+	bfs(v);
 }
