@@ -1,66 +1,34 @@
 #include <iostream>
 #include <queue>
 #include <vector>
-#include <cstring>
 #include <algorithm>
-
+#include <cstring>
 using namespace std;
 
-int n, m;
-int arr[21][21];
-bool visited[21][21];
+int n, m; //격자 한변의 크기, 색상의 개수
+int arr[21][21]; //격자
+int visited[21][21];
+int score = 0;
 
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
+int cnt = 0;
 
-queue<pair<int, int>> q;
-vector<pair<int, int>> max_block_group;
-int max_block_muzigae_num = 0;
-long score = 0;
-
-void input() {
-	cin >> n >> m; //격자 한 변의 크기, 색상의 개수
-	//블록은 검은색 블록, 무지개 블록, 일반 블록
-	//일반 블록은 M가지 색상이 있고, 색은 M이하의 자연수로 표현
-
-	//검은색 블록은 -1, 무지개 블록은 0
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cin >> arr[i][j];
-		}
-	}
-}
-
-
-pair<int, int> find_gizun_block(vector <pair<int,int>> v) {
-
-	sort(v.begin(), v.end());
-
-	for (int i = 0; i < v.size(); i++) {
-		int x = v[i].first;
-		int y = v[i].second;
-
-		if (arr[x][y] != 0) {
-			return { x,y };
-		}
-	}
-
-}
-void bfs(int x, int y) {
+pair<pair<int, int>, pair<int, int>> bfs(int x, int y) {
+	//기준 블록 x,y && 블록집합 사이즈, 무지개 블록
 
 	memset(visited, false, sizeof(visited));
 
-	vector<pair<int, int>> tmp;
-	int color = arr[x][y];
-	int num = 1;
-	int tmp_muzigae_num = 0;
+	queue <pair<int, int>> q;
+	q.push({ x,y });
+	int num = arr[x][y]; //블록 색깔
+	visited[x][y] = cnt;
 
-	q.push({ x, y });
-	visited[x][y] = true;
-	tmp.push_back({ x,y });
-	if (arr[x][y] == 0) {
-		tmp_muzigae_num++;
-	}
+	int muzigae_num = 0;
+	int total_num = 1;
+
+	vector<pair<int, int>> general_blocks; //일반 블록 모음
+	general_blocks.push_back({ x,y });
 
 	while (!q.empty()) {
 		int a = q.front().first;
@@ -72,83 +40,169 @@ void bfs(int x, int y) {
 			int nx = a + dx[i];
 			int ny = b + dy[i];
 
-			if (0 <= nx && nx < n && 0 <= ny && ny < n && (!visited[nx][ny] && (arr[nx][ny] == 0 || arr[nx][ny] == color))) {
-				//방문을 안 하고, 검은색 블록이 아니라면
-				q.push({ nx,ny });
-				visited[nx][ny] = true;
-				tmp.push_back({ nx,ny });
-				num++;
+			if (0 <= nx && nx < n && 0 <= ny && ny < n && visited[nx][ny] != cnt) {
 
-				if (arr[nx][ny] == 0) {
-					tmp_muzigae_num++;
+				if (arr[nx][ny] == num) { //일반 블록이면
+					q.push({ nx,ny });
+					general_blocks.push_back({ nx,ny }); //일반 블록 모음에 추가
+					total_num++; //전체 개수
+					visited[nx][ny] = cnt;
+				}
+				else if (arr[nx][ny] == 0) { //무지개 블록이면
+					q.push({ nx,ny });
+					visited[nx][ny] = cnt;
+					muzigae_num++; //무지개 개수
+					total_num++; //전체 개수
 				}
 			}
 		}
 	}
 
-	//가장 큰 블록 개수라면, 2이상 이라면
-	if (num > max_block_group.size() && num >= 2) {
-		max_block_group = tmp; //갱신
-		max_block_muzigae_num = tmp_muzigae_num;
-	}
-	else if (num == max_block_group.size() && num >= 2) { //블록 그룹이 여러 개라면
-		if (tmp_muzigae_num > max_block_muzigae_num) { //무지개 블록이 더 여러 개라면
-			max_block_group = tmp;
-			max_block_muzigae_num = tmp_muzigae_num;
-		}
-		else if (tmp_muzigae_num == max_block_muzigae_num) { //무지개 블록 개수가 같다면
-			//무지개 블록의 수도 같다면
-			pair<int, int> original = find_gizun_block(max_block_group);
-			pair<int, int> now = find_gizun_block(tmp);
+	sort(general_blocks.begin(), general_blocks.end());
 
-			//기준 블록의 행이 더 크다면
-			if (now > original) {
-				max_block_group = tmp;
+	pair<int, int> gizun_block = general_blocks[0]; //기준 블록
+
+	return { gizun_block, { total_num, muzigae_num } };
+}
+
+void bfs2(int x, int y) {
+
+	queue<pair<int, int>> q;
+
+	q.push({ x,y });
+	visited[x][y] = true;
+	int num = arr[x][y];
+	arr[x][y] = -2;
+	int tmp_num = 1;
+
+	while (!q.empty()) {
+		int a = q.front().first;
+		int b = q.front().second;
+
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int nx = a + dx[i];
+			int ny = b + dy[i];
+
+			if (0 <= nx && nx < n && 0 <= ny && ny < n && !visited[nx][ny]) {
+				if (arr[nx][ny] == num || arr[nx][ny] == 0) {
+					arr[nx][ny] = -2; //제거
+					q.push({ nx,ny });
+					visited[nx][ny] = true;
+					tmp_num++;
+				}
 			}
 		}
 	}
+
+	score += tmp_num * tmp_num;
+
+}
+
+void print() {
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cout << arr[i][j] << " ";
+		}
+		cout << "\n";
+	}
+
 }
 void find_biggest_block_group() {
+	//크기가 가장 큰 블록 그룹을 찾는다.
 
 	memset(visited, false, sizeof(visited));
 
-	max_block_muzigae_num = 0;
+	int x;
+	int y;
+	pair<int, int> gizun_block = { -1,-1 };
+	int total_num = -1;
+	int muzigae_num = -1;
+
+	cnt = 0;
+
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (1 <= arr[i][j] && arr[i][j] <= 5 && !visited[i][j]) {
-				bfs(i, j);
+			if (1 <= arr[i][j] && arr[i][j] <= m && visited[i][j] == 0) {
+				//방문하지 않은, 일반 블록
+				cnt++;
+				pair<pair<int, int>, pair<int, int>> p = bfs(i, j);
+				pair<int, int> tmp_gizun_block = p.first; //기준 블록
+				int tmp_total_num = p.second.first; //전채 개수
+				int tmp_muzigae_num = p.second.second; //무지개 개수
+				if (tmp_total_num == 1) { //만약 개수가 1개라면
+					continue;
+				}
+				if (total_num == -1 || total_num < tmp_total_num) {
+					//전체 블록 개수가 작거나
+					gizun_block = tmp_gizun_block;
+					total_num = tmp_total_num;
+					muzigae_num = tmp_muzigae_num;
+					x = i;
+					y = j;
+				}
+				else if (total_num == tmp_total_num) {
+					//전체 블록 개수가 같다면
+					if (tmp_muzigae_num > muzigae_num) {
+						gizun_block = tmp_gizun_block;
+						total_num = tmp_total_num;
+						muzigae_num = tmp_muzigae_num;
+						x = i;
+						y = j;
+					}
+					else if (tmp_muzigae_num == muzigae_num) {
+						//무지개 개수가 같다면
+						if (tmp_gizun_block > gizun_block) {
+							gizun_block = tmp_gizun_block;
+							total_num = tmp_total_num;
+							muzigae_num = tmp_muzigae_num;
+							x = i;
+							y = j;
+						}
+					}
+				}
 			}
 		}
 	}
 
-	//더 이상 기준 블록이 없다면
-	if (max_block_group.size() == 0) {
+	if (total_num == -1) {
 		cout << score;
 		exit(0);
 	}
+	memset(visited, false, sizeof(visited));
+	bfs2(x, y);
 }
 
-void one_block_gravity(int x, int y) { //중력 작용
+pair<int, int> down(int x, int y) {
 
-	pair<int, int> p = { -100,-100 };
+	pair<int, int> start = { x,y };
 
 	for (int i = x + 1; i < n; i++) {
-		if (arr[i][y] == -2) { //빈칸이면
-			p = { i, y };
+		if (arr[i][y] != -2) { //검은색 블록 혹은 일반 블록 혹은 무지개 블록이 있다면
+			return start;
 		}
-		else {
-			break;
-		}
+		start = { i,y };
 	}
-
-	if (p.first != -100 && arr[x][y] != -1) { //-1 블록이 아니면
-		int num = arr[x][y];
-		arr[x][y] = -2; //빈칸으로 만들기
-		arr[p.first][p.second] = num; //숫자로 채우기
+	return start;
+}
+void gravity() {
+	for (int j = 0; j < n; j++) {
+		for (int i = n - 1; i >= 0; i--) {
+			int num = arr[i][j];
+			if (num == -1 || num == -2) { //검은색 블록이면
+				continue;
+			}
+			pair<int, int> next_position = down(i, j);
+			arr[i][j] = -2; //빈칸처리
+			arr[next_position.first][next_position.second] = num; //숫자 채우기
+		}
 	}
 }
 
 void rotate() {
+
 	int arr2[100][100];
 
 	for (int i = 0; i < n; i++) {
@@ -163,37 +217,26 @@ void rotate() {
 		}
 	}
 }
-void gravity() { //중력 작용
-
-	for (int j = 0; j < n; j++) { //행
-		for (int i = n - 1; i >= 0; i--) {
-			one_block_gravity(i, j);
-		}
-	}
-}
-
-void erase() {
-	for (int i = 0; i < max_block_group.size(); i++) {
-		arr[max_block_group[i].first][max_block_group[i].second] = -2; //제거
-	}
-
-	score += max_block_group.size() * max_block_group.size();
-
-}
 void solution() {
-	//블록 그룹(연결된 블록의 집합 - 일반 블록 1개 이상, 
-	//검은색 블록은 포함하면 안 되고, 
-	//무지개 블록은 얼마 들어 있든 상관 없음
-	//그룹에 속한 블록의 개수는 2보다 크거나 같아야 하며, 
-	//기준 블록은 무지개 블록이 아닌 블록에서 행의 번호가 가장 작은 블록, 열의 번호가 가장 작은 블록
+	//검은색블록: -1
+	//무지개블록: 0
+	//기준 블록 : 무지개 블록이 아닌 블록 중에서 행의 번호가 가장 작고, 열의 번호가 가장 작은 블록
 
 	while (true) {
-		max_block_group.clear();
 		find_biggest_block_group();
-		erase();
 		gravity();
-		rotate();
-		gravity();
+		rotate(); //반시계 방향으로 회전
+		gravity(); //다시 중력
+	}
+
+}
+void input() {
+	cin >> n >> m;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> arr[i][j];
+		}
 	}
 }
 int main() {
