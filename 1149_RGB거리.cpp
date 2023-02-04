@@ -2,39 +2,39 @@
 
 using namespace std;
 
-long long house[1001][3];
+int arr[1001][3];
+int dp[1001][3];
+
 int n;
-int cost[3];
+void input() {
 
+	cin >> n;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < 3; j++) {
+			cin >> arr[i][j];
+		}
+	}
+}
+
+void solution() {
+	dp[0][0] = arr[0][0];
+	dp[0][1] = arr[0][1];
+	dp[0][2] = arr[0][2];
+
+	for (int i = 1; i < n; i++) {
+		dp[i][0] = min(dp[i - 1][1], dp[i - 1][2]) + arr[i][0];
+		dp[i][1] = min(dp[i - 1][0], dp[i - 1][2]) + arr[i][1];
+		dp[i][2] = min(dp[i - 1][0], dp[i - 1][1]) + arr[i][2];
+	}
+
+	cout << min(min(dp[n - 1][0], dp[n - 1][1]), dp[n - 1][2]);
+}
 int main() {
-
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	cin >> n;
-
-	house[0][0] = 0;
-	house[0][1] = 0;
-	house[0][2] = 0;
-
-	for (int i = 1; i <= n; i++) {
-		cin >> cost[0] >> cost[1] >> cost[2];
-
-		house[i][0] = min(house[i - 1][1], house[i - 1][2]) + cost[0];
-		house[i][1] = min(house[i - 1][0], house[i - 1][2]) + cost[1];
-		house[i][2] = min(house[i - 1][0], house[i - 1][1]) + cost[2];
-	}
-	
-//	cout << house[n][0] << " " << house[n][1] <<  " " << house[n][2] << "\n";
-	
-	int mini = 1000000000;
-
-	for (int i = 0; i < 3; i++) {
-		if (house[n][i] < mini) {
-			mini = house[n][i];
-		}
-	}
-
-	cout << mini;
+	input();
+	solution();
 }
