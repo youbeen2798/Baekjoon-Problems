@@ -3,100 +3,84 @@
 using namespace std;
 
 int n, m;
-int dx[4] = { 1,-1,0,0 };
-int dy[4] = { 0,0,1,-1 };
-
-int answer = 0;
-
-bool visited[501][501] = { false, };
 int arr[501][501];
+int real_ans = 0;
 
-bool isIn(int r, int c) {
-	if (r < 0 || r >= n || c < 0 || c >= m) {
-		return false;
-	}
-	return true;
-}
+pair<int, int> dxdy[17][4] = {
+	{{0,0}, {0,1}, {0,2}, {0,3}},
+	{{0,0}, {1,0}, {2,0}, {3,0}},
+	{{0,0}, {1,0}, {0,1}, {1,1}},
+	{{0,0}, {1,0}, {2,0}, {2,1}},
+	{{0,0}, {0,1}, {0,2}, {-1,2}},
+	{{0,0}, {1,0}, {1,1}, {1,2}},
+	{{0,0}, {0,1}, {-1,1}, {-2,1}},
+	{{0,0}, {0,1}, {0,2}, {1,0}},
+	{{0,0}, {0,1}, {0,2}, {1,2}},
+	{{0,0}, {1,0}, {1,1}, {2,1}},
+	{{0,0}, {1,0}, {0,1}, {-1,1}},
+	{{0,0}, {0,1}, {-1,1}, {-1,2}},
+	{{0,0}, {0,1}, {1,1}, {1,2}},
+	{{0,0}, {1,0}, {1,1}, {2,0}},
+	{{0,0}, {0,1}, {0,2}, {1,1}},
+	{{0,0}, {0,1}, {-1,1}, {1,1}},
+	{{0,0}, {0,1}, {-1,1}, {0,2}}
+};
 
-void dfs(int r, int c, int depth, int sum) {
-	if (depth == 3) {
-		answer = max(answer, sum);
-		return;
-	}
-	for (int i = 0; i < 4; i++) {
-		int nR = r + dx[i];
-		int nC = c + dy[i];
+int mini_solution(int x, int y) {
 
-		if (isIn(nR, nC) == false) {
-			continue;
+	int tmp_ans = 0;
+
+	for (int i = 0; i < 17; i++) {
+		bool possible = true;
+		int mini_tmp_ans = 0;
+
+		for (int j = 0; j < 4; j++) {
+
+			int nx = x + dxdy[i][j].first;
+			int ny = y + dxdy[i][j].second;
+
+			if (0 <= nx && nx < n && 0 <= ny && ny < m) {
+				mini_tmp_ans += arr[nx][ny];
+			}
+			else {
+				possible = false;
+			}
 		}
-		if (visited[nR][nC] == true) {
-			continue;
+		if (possible) {
+			tmp_ans = max(tmp_ans, mini_tmp_ans);
 		}
-		visited[nR][nC] = true;
-		dfs(nR, nC, depth + 1, sum + arr[nR][nC]);
-		visited[nR][nC] = false;
 	}
+
+	return tmp_ans;
+}
+void solution() {
+
+	//mini_solution(0, 4);
+
+	 
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			real_ans = max(real_ans, mini_solution(i, j));
+		}
+	}
+	cout << real_ans;
+	
 }
 
-void solu1(int r, int c) {
-	int sum = 0;
-	sum = arr[r][c] + arr[r + 1][c] + arr[r + 2][c] + arr[r + 1][c + 1];
-
-	answer = max(answer, sum);
-}
-
-void solu2(int r, int c) {
-	int sum = 0;
-	sum = arr[r][c] + arr[r][c + 1] + arr[r][c + 2] + arr[r - 1][c + 1];
-	answer = max(answer, sum);
-}
-
-void solu3(int r, int c) {
-	int sum = 0;
-	sum = arr[r][c] + arr[r][c + 1] + arr[r][c + 2] + arr[r + 1][c + 1];
-	answer = max(answer, sum);
-}
-
-void solu4(int r, int c) {
-	int sum = 0;
-	sum = arr[r][c] + arr[r][c + 1] + arr[r - 1][c + 1] + arr[r + 1][c + 1];
-	answer = max(answer, sum);
-}
-
-int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
-
-	cin >> n >> m; //세로 //가로
+void input() {
+	cin >> n >> m; //세로 크기와 가로 크기
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			cin >> arr[i][j];
 		}
 	}
+}
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			visited[i][j] = true;
-			dfs(i, j, 0, arr[i][j]);
-			visited[i][j] = false;
-
-			if (i < n - 2 && j < m - 1) {
-				solu1(i, j);
-			}
-			if (j < m - 2) {
-				solu2(i, j);
-			}
-			if (i < n - 1 && j < m - 2) {
-				solu3(i, j);
-			}
-			if (i < n - 1 && j < m - 1) {
-				solu4(i, j);
-			}
-		}
-	}
-
-	cout <<  answer;
+	input();
+	solution();
 }
