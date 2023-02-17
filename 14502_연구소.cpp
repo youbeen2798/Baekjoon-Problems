@@ -1,41 +1,26 @@
 #include <iostream>
 #include <vector>
-#include <set>
 #include <queue>
+#include <cstring>
+
 using namespace std;
 
-int n, m; // ¼¼·Î Å©±â, °¡·Î Å©±â
-int arr[9][9];
+int n;
+int m;
+int map[9][9];
 bool visited[9][9];
-int real_ans = 0;
+bool spread[9][9];
+int ans = 0;
+
+vector<pair<int, int>> empty_room; //ºó ¹æ
+
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
-int original_empty_room_size = 0;
 
-vector<pair<int, int>> empty_room;
+void spread_bfs(int x, int y) {
 
-void input() {
-
-	cin >> n >> m;
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			cin >> arr[i][j];
-			if (arr[i][j] == 0) { //ºóÄ­
-				empty_room.push_back({ i,j });
-			}
-		}
-	}
-
-	original_empty_room_size = empty_room.size();
-}
-
- int bfs(int x, int y) {
 	queue<pair<int, int>> q;
-
 	q.push({ x,y });
-	visited[x][y] = true;
-	int tmp_ans = 0;
 
 	while (!q.empty()) {
 		int a = q.front().first;
@@ -47,67 +32,85 @@ void input() {
 			int nx = a + dx[i];
 			int ny = b + dy[i];
 
-			if (0 <= nx && nx < n && 0 <= ny && ny < m && !visited[nx][ny] && arr[nx][ny] != 1) {
+			//ºóÄ­ÀÌ°í, ¹æ¹®À» ÇÏÁö ¾Ê¾Ò´Ù¸é
+			if (0 <= nx && nx < n && 0 <= ny && ny < m && !spread[nx][ny] && map[nx][ny] == 0) {
+
+				spread[nx][ny] = true;
 				q.push({ nx,ny });
-				visited[nx][ny] = true;
-				if (arr[nx][ny] == 0) { //ºóÄ­ÀÌ¸é
-					tmp_ans++;
-				}
 			}
 		}
 	}
-
-	return tmp_ans;
 }
-void check(vector<pair<int,int>> comb) {
 
-	for (int i = 0; i < comb.size(); i++) {
-		arr[comb[i].first][comb[i].second] = 1; //ºó Ä­ º®À¸·Î ¸¸µé±â
-	}
+void count_safe_zone() {
 
-	memset(visited, false, sizeof(visited));
+	int tmp_cnt = 0;
 
-	int ans = 0;
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (arr[i][j] == 2 && !visited[i][j]) {
-				ans += bfs(i, j);
+			if (map[i][j] == 0 && !spread[i][j]) {
+				tmp_cnt++;
 			}
 		}
 	}
-	
-	int safe_zone_num = original_empty_room_size - ans - 3;
-	 
-	real_ans = max(real_ans, safe_zone_num);
 
-	for (int i = 0; i < comb.size(); i++) {
-		arr[comb[i].first][comb[i].second] = 0; //º® ´Ù½Ã ºóÄ­ ¸¸µé±â
+	ans = max(ans, tmp_cnt);
+}
+void check() {
+
+	memset(spread, false, sizeof(spread));
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (map[i][j] == 2) {
+				spread_bfs(i, j);
+			}
+		}
 	}
 
+	count_safe_zone();
 }
-void Combination(vector<pair<int, int>> arr, vector<pair<int, int>> comb, int r, int idx, int depth) {
-
+void combination(vector<pair<int, int>> arr, vector<pair<int, int>> comb, int r, int depth, int idx) {
 	if (r == 0) {
-		check(comb);
+		for (int i = 0; i < comb.size(); i++) {
+			map[comb[i].first][comb[i].second] = 1; //ºóÄ­ º®À¸·Î ¸·±â
+		}
+		check();
+
+		for (int i = 0; i < comb.size(); i++) {
+			map[comb[i].first][comb[i].second] = 0; //¿ø·¡´ë·Î µ¹·Á³õ±â
+		}
+		return;
 	}
 	else if (arr.size() == depth) {
 		return;
 	}
 	else {
 		comb[idx] = arr[depth];
-
-		Combination(arr, comb, r - 1, idx + 1, depth + 1);
-		Combination(arr, comb, r, idx, depth + 1);
+		combination(arr, comb, r - 1, depth + 1, idx + 1);
+		combination(arr, comb, r, depth + 1, idx);
 	}
 }
 void solution() {
 
 	vector<pair<int, int>> comb(3);
 
-	Combination(empty_room, comb, 3, 0, 0); 
-	cout << real_ans;
+	combination(empty_room, comb, 3, 0, 0);
 }
 
+void input() {
+
+	cin >> n >> m;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cin >> map[i][j];
+			if (map[i][j] == 0) {
+				empty_room.push_back({ i,j });
+			}
+		}
+	}
+}
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
@@ -115,4 +118,5 @@ int main() {
 
 	input();
 	solution();
+	cout << ans;
 }
