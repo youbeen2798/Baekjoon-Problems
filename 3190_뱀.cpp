@@ -1,138 +1,127 @@
 #include <iostream>
+#include <deque>
 #include <set>
-#include <vector>
 #include <map>
+
 using namespace std;
 
-int n, k, l;
-int direction = 0;
-set <pair< int, int >> apple;
-map<int,char> directionChange;
+int n; //보드 크기
+int k; //사과 개수
+int l; //뱀 방향 변환 횟수
 
-vector <pair<int, int>> snake; 
-set <pair<int, int>> snakeposition;
+deque<pair<int, int>> snakes; //뱀 위치
+set<pair<int, int>> apples; //사과 위치
+map<int, char> change_dir_info; //뱀의 방향 변환 정보
 
-void input() {
-	cin >> n >> k;
-	for (int i = 0; i < k; i++) {
-		int x, y;
-		cin >> x >> y;
-		apple.insert({ x,y });
+//뱀의 방향
+// 0 : 오른쪽, 1 : 아래쪽, 2 : 왼쪽, 3 : 위쪽
+int snake_dir = 0; 
+int current_time = 0; //현재 시간
+int snake_x = 1; //뱀 현재 위치 행
+int snake_y = 1; //뱀 현재 위치 열
+
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+
+bool inrange(int x, int y) {
+	if (1 <= x && x <= n && 1 <= y && y <= n) {
+		return true;
 	}
-	cin >> l;
-	for (int i = 0; i < l; i++) {
-		int num;
-		char c;
-		cin >> num >> c;
-		directionChange.insert({ num,c });
-	}
-
-	snake.push_back({ 1,1 });
-	snakeposition.insert({ 1,1 });
+	return false;
 }
+
+void finish() {
+	cout << current_time;
+	exit(0);
+}
+void snake_move() {
+
+	snake_x += dx[snake_dir];
+	snake_y += dy[snake_dir];
+
+	pair<int, int> current_snake_position = { snake_x, snake_y };
+
+	//만약 범위 내에 없다면
+	if (!inrange(snake_x, snake_y)) {
+		finish();
+	}
+
+	//만약 뱀에게 부딪힌다면
+	for (int i = 0; i < snakes.size(); i++) {
+		if (snakes[i].first == snake_x && snakes[i].second == snake_y) {
+			finish();
+		}
+	}
+
+
+	
+	snakes.push_back(current_snake_position);
+
+	//만약 이동한 칸에 사과가 없다면
+	if (apples.find(current_snake_position) == apples.end()) {
+		snakes.pop_front();
+	}
+	else {
+		apples.erase(current_snake_position);
+	}
+}
+
+void change_dir() {
+	//방향을 바꿀일이 있으면 방향을 바꾼다.
+
+	if (change_dir_info.find(current_time) != change_dir_info.end()) {
+		char dir = change_dir_info[current_time];
+
+		if (dir == 'L') {
+			//왼쪽으로 바꾼다면
+			if (snake_dir == 0) {
+				snake_dir += 3;
+				return;
+			}
+			snake_dir--;
+		}
+		else {
+			//오른쪽으로 바꾼다면
+			if (snake_dir == 3) {
+				snake_dir -= 3;
+				return;
+			}
+			snake_dir++;
+		}
+	}
+}
+
 
 void solution() {
 
-	int r = 5;
-	for(int time = 1;; time++){
-		if (snake.back().first < 1 || snake.back().first > n || snake.back().second < 1 || snake.back().second > n) {
-			time--;
-			cout << time << "\n";
-			break;
-		}
-//		else if (snakeposition.find({snake.back().first, snake.back().second})!= snakeposition.end()) {
-//			time--;
-//			cout << time << "\n";
-//			break;
-//		}
-		else {
-			//머리 추가
-			if (direction == -1) {
-				direction = 3;
-			}
-			else if (direction == 4) {
-				direction = 0;
-			}
+	snakes.push_back({ 1,1 });
 
-			if (direction == 0) { //오른쪽으로 이동
-				int nx = snake.back().first;
-				int ny = snake.back().second + 1;
-				if (snakeposition.find({nx,ny}) != snakeposition.end()) {
-					cout << time << "\n";
-					break;
-				}
-				snake.push_back({nx,ny});
-				snakeposition.insert({nx,ny});
-			}
-			else if (direction == 1) { //아래로 이동
-				int nx = snake.back().first + 1;
-				int ny = snake.back().second;
-				if (snakeposition.find({ nx,ny }) != snakeposition.end()) {
-					cout << time << "\n";
-					break;
-				}
-				snake.push_back({nx,ny});
-				snakeposition.insert({nx,ny });
-			}
-			else if (direction == 2) { //왼쪽으로 이동
-				int nx = snake.back().first;
-				int ny = snake.back().second - 1;
+	while(true) {
+		current_time++;
+		snake_move(); //뱀이 이동한다.
+		change_dir(); //방향을 바꿀 일이 있으면 방향을 바꾼다.
+	}
 
-				if (snakeposition.find({ nx,ny }) != snakeposition.end()) {
-					cout << time << "\n";
-//					cout << "*** 현재 뱀 위치전체" << "\n";
+}
+void input() {
 
-//					for (auto i : snakeposition) {
-//						cout << i.first << " " << i.second << "\n";
-//					}
+	cin >> n >> k;
 
-//					cout << "nx: " << nx << " ny: " << ny << "\n";
-//					cout << time << "\n";
-					break;
-				}
-				snake.push_back({nx,ny});
-				snakeposition.insert({nx,ny});
-			}
-			else if (direction == 3) { //위로 이동
-				int nx = snake.back().first - 1;
-				int ny = snake.back().second;
-				if (snakeposition.find({ nx,ny }) != snakeposition.end()) {
-					cout << time << "\n";
-					break;
-				}
-				snake.push_back({nx,ny });
-				snakeposition.insert({ nx,ny});
-			}
+	//사과 위치
+	for (int i = 0; i < k; i++) {
+		int x, y; //행과 열
+		cin >> x >> y;
+		apples.insert({ x,y });
+	}
 
-			//꼬리 뺄지 말지 결정(사과가 있으면, 안 빼고, 사과가 없으면 뺌)
-			if (apple.find({ snake.back().first, snake.back().second }) == apple.end()) { //사과가 없으면
-//				cout << snake[0].first << " " << snake[0].second << "삭제" << "\n";
-				snakeposition.erase({ snake[0].first, snake[0].second });
-				snake.erase(snake.begin());
-			}
-			else {
-				apple.erase({ snake.back().first, snake.back().second });
-			}
+	cin >> l;
 
-			//방향 바꿀지 안바꿀지 결정
-			if (directionChange.find(time) != directionChange.end()) {
-				if (directionChange[time] == 'D') { //오른쪽으로 이동
-					direction++;
-				}
-				else { //왼쪽으로 이동
-					direction--;
-				}
-			}
-//			cout << "***" << "\n";
-//			cout << snake.back().first << " " << snake.back().second << "\n";
-			cout << "*****" << "\n";
-			cout << "time: " << time << "\n";
-			cout << "snakeposition 크기: " << snakeposition.size() << "\n";
-			cout << "뱀 위치" << "\n";
-			for (auto i : snakeposition) {
-				cout << i.first << " " << i.second << "\n";
-			}
-		}
+	// 방향 바꾸기
+	for (int i = 0; i < l; i++) {
+		int x;
+		char c;
+		cin >> x >> c;
+		change_dir_info.insert({ x,c });
 	}
 }
 int main() {
@@ -142,5 +131,4 @@ int main() {
 
 	input();
 	solution();
-	
 }
