@@ -1,249 +1,279 @@
 #include <iostream>
 #include <vector>
-#include <map>
 #include <cstring>
+
 using namespace std;
 
-int n, m;
+int n;
+int m;
 int arr[50][50];
-pair<int, int> shark;
+int shark_x; //상어 행
+int shark_y; //상어 열
 
 vector<int> gusuls;
-vector <pair<int, int>> mabub;
+int ans[4];
 
-map<int, pair<int, int>> maps;
-vector <int> v;
-bool stop_bumb;
-map <int, int> bumped;
-
-void first(int shark_x, int shark_y, int di, int si) { //제일 처음에 상어 구슬
-
-	if (di == 1) { //위로
+void bumb(int di, int si) {
+	//방향과 거리
+	if (di == 1) { //위
 		for (int i = 1; i <= si; i++) {
-			int x = arr[shark_x - i][shark_y];
-			arr[shark_x - i][shark_y] = -1;
+			arr[shark_x - i][shark_y] = 0;
 		}
 	}
-	else if (di == 2) { //아래로
+	else if (di == 2) { //아래
 		for (int i = 1; i <= si; i++) {
-			int x = arr[shark_x + i][shark_y];
-			arr[shark_x + i][shark_y] = -1;
+			arr[shark_x + i][shark_y] = 0;
 		}
 	}
-	else if (di == 3) { //왼쪽으로
+	else if (di == 3) { //왼쪽
 		for (int i = 1; i <= si; i++) {
-			int x = arr[shark_x][shark_y - i];
-			arr[shark_x][shark_y - i] = -1;
+			arr[shark_x][shark_y - i] = 0;
 		}
 	}
-	else if (di == 4) { //오른쪽으로
+	else { //오른쪽
 		for (int i = 1; i <= si; i++) {
-			int x = arr[shark_x][shark_y + i];
-			arr[shark_x][shark_y + i] = -1;
+			arr[shark_x][shark_y + i] = 0;
 		}
 	}
 }
 
-void write_map() {
 
-	int cnt = n * n - 1;
-	int size = n - 1; //6만큼
+vector<int> get_gusuls() {
 
-	int k = size / 2;
-	for (int i = 1; i <= k; i++) { //1부터 3까지
+	vector<int> tmp_gusuls;
+	int x = shark_x;
+	int y = shark_y;
 
-		int start_x = i; //1
-		int start_y = i; //1
+	for (int i = 1; i <= n - 2; i += 2) {
+		//왼쪽
+		for (int j = 1; j <= i; j++) {
+			y--;
 
-		for (int j = 0; j < size; j++) {
-			maps.insert({ cnt,{ start_x, start_y + j} });
-			cnt--;
+			if (arr[x][y] != 0) {
+				tmp_gusuls.push_back(arr[x][y]);
+			}
 		}
-
-		start_y = i + size; // start_y = 7;
-		for (int j = 0; j < size; j++) {
-			maps.insert({ cnt,{ start_x + j, start_y} });
-			cnt--;
+		//아래쪽
+		for (int j = 1; j <= i; j++) {
+			x++;
+			if (arr[x][y] != 0) {
+				tmp_gusuls.push_back(arr[x][y]);
+			}
 		}
-
-		start_x = i + size;
-		for (int j = 0; j < size; j++) { //왼쪽
-			maps.insert({ cnt,{ start_x, start_y - j} });
-			cnt--;
+		//오른쪽
+		for (int j = 1; j <= i + 1; j++) {
+			y++;
+			if (arr[x][y] != 0) {
+				tmp_gusuls.push_back(arr[x][y]);
+			}
 		}
-
-		start_y = i;
-		for (int j = 0; j < size; j++) {
-			maps.insert({ cnt,{ start_x - j, start_y} });
-			cnt--;
+		//위쪽
+		for (int j = 1; j <= i + 1; j++) {
+			x--;
+			if (arr[x][y] != 0) {
+				tmp_gusuls.push_back(arr[x][y]);
+			}
 		}
-		size -= 2;
 	}
 
+	for (int i = 1; i <= n - 1; i++) {
+		y--;
+		if (arr[x][y] != 0) {
+			tmp_gusuls.push_back(arr[x][y]);
+		}
+	}
+
+	return tmp_gusuls;
 }
 
-void bumb() {
-	//arr이 4개 이상 구슬이 있을 때 -1로 바꿔준다.
+void real_arrange(vector<int> gusuls) {
+	//구슬을 다시 배열에 저장
 
-	int cnt = 0;
+	memset(arr, 0, sizeof(arr));
+	int x = shark_x;
+	int y = shark_y;
+	int idx = 0;
 
-	vector <pair<int, int>> tmp;
+	int diff = gusuls.size() - n * n - 1;
 
-	for (int i = 0; i < v.size() - 1; i++) {
-		if (v[i] == 0) {
+	for (int i = 0; i < diff; i++) {
+		gusuls.pop_back();
+	}
+
+
+	while (true) {
+		for (int i = 1; i <= n - 2; i += 2) {
+			//왼쪽
+			for (int j = 1; j <= i; j++) {
+				y--;
+				if (idx >= gusuls.size()) {
+					return;
+				}
+				arr[x][y] = gusuls[idx++];
+			}
+			//아래쪽
+			for (int j = 1; j <= i; j++) {
+				x++;
+				if (idx >= gusuls.size()) {
+					return;
+				}
+				arr[x][y] = gusuls[idx++];
+			}
+			//오른쪽
+			for (int j = 1; j <= i + 1; j++) {
+				y++;
+				if (idx >= gusuls.size()) {
+					return;
+				}
+				arr[x][y] = gusuls[idx++];
+			}
+			//위쪽
+			for (int j = 1; j <= i + 1; j++) {
+				x--;
+				if (idx >= gusuls.size()) {
+					return;
+				}
+				arr[x][y] = gusuls[idx++];
+			}
+		}
+
+		for (int i = 1; i <= n - 1; i++) {
+			y--;
+			if (idx >= gusuls.size()) {
+				return;
+			}
+			arr[x][y] = gusuls[idx++];
+		}
+	}
+}
+void arrange() {
+
+	vector<int> tmp_gusuls = get_gusuls();
+	real_arrange(tmp_gusuls);
+}
+
+
+bool over_four_bumb() {
+	//폭발하는 구슬은 4개 이상 연속하는 구슬이 있을 때
+
+	bool bumb_possible = false; //폭발할게 있는지 확인
+
+	//폭발하기 전 구슬
+	vector<int> before_bumb_gusuls = get_gusuls();
+
+	//폭발 후 구슬
+	vector<int> after_bumb_gusuls;
+
+	for (int i = 0; i < before_bumb_gusuls.size(); i++) {
+		int num = before_bumb_gusuls[i];
+		vector<int> tmp;
+		tmp.push_back(num);
+		int same_num_cnt = 1;
+
+		for (int j = i + 1; j < before_bumb_gusuls.size(); j++) {
+			if (before_bumb_gusuls[j] == num) {
+				same_num_cnt++;
+				tmp.push_back(num);
+				continue;
+			}
 			break;
 		}
-		else if (v[i] == v[i + 1]) {
-			cnt++;
+
+		//4개 이상 연속하는 구슬이 있을 때 
+		if (same_num_cnt >= 4 && num != 0) {
+			i += same_num_cnt - 1;
+			ans[num] += same_num_cnt;
+			bumb_possible = true; //폭발 할게 있음
+			continue;
 		}
-		else {
-			if (cnt >= 3) {
-				tmp.push_back({ i,cnt });
+
+		//4개 이상 연속하는 구슬이 없을 때 
+		i += same_num_cnt - 1;
+		for (int j = 0; j < tmp.size(); j++) {
+			after_bumb_gusuls.push_back(tmp[j]);
+		}
+	}
+
+	if (bumb_possible) {
+
+		real_arrange(after_bumb_gusuls);
+
+		return true;
+	}
+	return false;
+}
+
+void gusul_num_change() {
+
+	//폭발하기 전 구슬
+	vector<int> before_bumb_gusuls = get_gusuls();
+	
+	//폭발 후 구슬
+	vector<int> after_bumb_gusuls;
+
+	for (int i = 0; i < before_bumb_gusuls.size(); i++) {
+		int num = before_bumb_gusuls[i];
+		vector<int> tmp;
+		tmp.push_back(num);
+		int same_num_cnt = 1;
+
+		for (int j = i + 1; j < before_bumb_gusuls.size(); j++) {
+			if (before_bumb_gusuls[j] == num) {
+				same_num_cnt++;
+				tmp.push_back(num);
+				continue;
 			}
-			cnt = 0;
+			break;
 		}
-	}
 
-	for (int i = 0; i < tmp.size(); i++) {
-		int x = tmp[i].first; //4
-		int y = tmp[i].second; //4
-		bumped[v[x]] += ++y;
-		for (int j = 0; j < y; j++) { //x - j = 1 ~ x - j = 5
-			v[x - j] = -1; //v[4], v[3], v[2], v[1]
+		i += same_num_cnt - 1;
+		if (num == 0) {
+			break;
 		}
+		after_bumb_gusuls.push_back(same_num_cnt);
+		after_bumb_gusuls.push_back(num);
 	}
 
-	vector <int> tmp_v;
 
-
-	for (int i = 0; i < v.size(); i++) {
-		if (v[i] != -1) {
-			tmp_v.push_back(v[i]);
-		}
-	}
-
-	v.clear();
-	v = tmp_v;
-
-
-
-
-	if (tmp.size() > 0) {
-		stop_bumb = false;
-	}
-	else {
-		stop_bumb = true;
-	}
+	real_arrange(after_bumb_gusuls);
 }
 
-void move2() {
+void get_ans() {
 
-	memset(arr, 0, sizeof(arr));
+	int real_ans = 0;
 
-	for (int i = 0; i < v.size(); i++) {
-		pair<int, int> p = maps[i + 1];
-		arr[p.first][p.second] = v[i];
+	for (int i = 1; i <= 3; i++) {
+		real_ans += ans[i] * i;
 	}
+
+	cout << real_ans;
+	exit(0);
 }
 
-void move3() {
+void solution(int di, int si) {
+	//방향과 거리
+	
+	bumb(di, si); //구슬 폭파
+	arrange();
 
-	memset(arr, 0, sizeof(arr));
-
-	if (v.size() < n * n) {
-		for (int i = 0; i < v.size(); i++) {
-			pair<int, int> p = maps[i + 1];
-			arr[p.first][p.second] = v[i];
+	while(true) {
+		if (!over_four_bumb()) {
+			break;
 		}
 	}
 
-	else {
-		for (int i = 0; i < n * n; i++) {
-			pair<int, int> p = maps[i + 1];
-			arr[p.first][p.second] = v[i];
-		}
-	}
-}
-void before_move() {
-	v.clear();
-	for (int i = 1; i <= n * n; i++) {
-		pair<int, int> p = maps[i];
-		int x = p.first;
-		int y = p.second;
-		if (arr[x][y] != -1) {
-			v.push_back(arr[x][y]);
-		}
-	}
-}
-void move() {
-
-	memset(arr, 0, sizeof(arr));
-
-	for (int i = 0; i < v.size(); i++) {
-		pair<int, int> p = maps[i + 1];
-		arr[p.first][p.second] = v[i];
-	}
+	gusul_num_change();
+	
 }
 
-void double_v() {
-
-	vector <pair<int, int>> vt;
-
-	int cnt = 0;
-
-	for (int i = 0; i < v.size() - 1; i++) {
-		if (v[i] != 0) {
-			if (v[i] == v[i + 1]) {
-				cnt++;
-			}
-			else {
-				vt.push_back({ v[i], cnt + 1 });
-				cnt = 0;
-			}
-		}
-	}
-
-	v.clear();
-
-	for (int i = 0; i < vt.size(); i++) {
-		v.push_back(vt[i].second);
-		v.push_back(vt[i].first);
-	}
-}
-
-void solution() {
-
-	for (int i = 0; i < mabub.size(); i++) {
-		int di = mabub[i].first;
-		int si = mabub[i].second;
-
-		first(shark.first, shark.second, di, si); //상어 구슬 삭제
-
-		before_move();
-		move();
-
-		while (true) {
-			bumb(); //4개 이상인 것들
-			if (stop_bumb) {
-				break;
-			}
-			move2();
-
-		}
-		double_v();
-		move3();
 
 
-	}
-}
+
 void input() {
 	cin >> n >> m;
 
-	write_map();
-	//상어 위치
-	shark.first = (n + 1) / 2;
-	shark.second = (n + 1) / 2;
-
+	shark_x = (n + 1) / 2;
+	shark_y = (n + 1) / 2;
 
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
@@ -251,29 +281,18 @@ void input() {
 		}
 	}
 
-	//블리자드 마법의 방향 di와 거리 si
-
 	for (int i = 0; i < m; i++) {
-		int di;
-		int si;
-		cin >> di >> si; //방향과 거리
-		mabub.push_back({ di,si });
+		int di, si; //방향과 거리
+		cin >> di >> si;
+		solution(di, si);
 	}
+
+	get_ans();
 }
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	bumped[1] = 0;
-	bumped[2] = 0;
-	bumped[3] = 0;
-
 	input();
-	solution();
-
-
-
-	cout << 1 * bumped[1] + 2 * bumped[2] + 3 * bumped[3];
-
 }
