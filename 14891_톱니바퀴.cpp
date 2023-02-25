@@ -4,130 +4,139 @@
 
 using namespace std;
 
+deque <char> dq[4];
+
 int k;
-int arr[5][9];
 
-deque<int> d[5];
+void real_rotate(int num, int dir) {
 
-vector<pair<int, int>> v; //회전시킨 톱니바퀴 번호, 방향
 
+    if (dir == 1) {
+        //시계 방향이라면
+        int back= dq[num].back();
+        dq[num].pop_back();
+        dq[num].push_front(back);
+    }
+    else if (dir == -1) {
+        //반시계방향이라면
+        int front = dq[num].front();
+        dq[num].pop_front();
+        dq[num].push_back(front);
+    }
+}
 void rotate(int num, int dir) {
 
-	if (dir == -1) { //시계방향
-		int number = d[num].front(); //첫번째 숫자
-		d[num].pop_front();
-		d[num].push_back(number);
-	}
-	else { //반시계방향
-		int number = d[num].back(); //마지막 숫자
-		d[num].pop_back();
-		d[num].push_front(number);
-	}
+    vector<pair<int, int>> move_orders;//이동 순서
+    
+    move_orders.push_back({ num - 1, dir });
+
+    if (num == 1) {
+
+        for (int i = 0; i <= 2; i++) {
+            if (dq[i][2] != dq[i + 1][6]) {
+                dir *= -1;
+                move_orders.push_back({ i + 1, dir });
+                continue;
+            }
+            break;
+        }
+    }
+    else if (num == 2) {
+        if (dq[0][2] != dq[1][6]) { //0번과 1번이 맞물리면
+            move_orders.push_back({0, dir * -1 });
+        }
+        //2번부터 4번
+        for (int i = 1; i <= 2; i++) {
+            if (dq[i][2] != dq[i + 1][6]) {
+                dir *= -1;
+                move_orders.push_back({ i + 1, dir});
+                continue;
+            }
+            break;
+        }
+    }
+    else if (num == 3) {
+
+        //3번과 4번이 맞물리면
+        if (dq[2][2] != dq[3][6]) {
+            move_orders.push_back({ 3, dir * -1 });
+        }
+        for (int i = 2; i > 0; i--) {
+            if (dq[i][6] != dq[i - 1][2]) {
+                dir *= -1;
+                move_orders.push_back({ i - 1, dir });
+                continue;
+            }
+            break;
+        }
+    }
+
+    else if (num == 4) {
+
+        for (int i = 3; i > 0; i--) {
+            if (dq[i][6] != dq[i - 1][2]) {
+                dir *= -1;
+                move_orders.push_back({ i - 1, dir });
+                continue;
+            }
+            break;
+        }
+    }
+
+
+    for (int i = 0; i < move_orders.size(); i++) {
+   //     cout << move_orders[i].first << " , " << move_orders[i].second << "\n";
+        real_rotate(move_orders[i].first, move_orders[i].second);
+    }
 }
 
-void mini_solution(int num, int dir) {
 
-	vector<pair<int, int>> v;
-	v.push_back({ num, dir });
-
-	if (num == 1) { //1번 톱니바퀴를 회전시키면
-
-		for (int i = 2; i <= 4; i++) {
-			if (d[i - 1][2] != d[i][6]) { //서로 극이 다르다면
-				dir *= -1;
-				v.push_back({ i,dir });
-				continue;
-			}
-			break;
-		}
-	}
-	else if (num == 2) { //2번 톱니바퀴를 회전시키면
-
-		if (d[1][2] != d[2][6]) { //1번 바퀴와 상극이라면
-			v.push_back({ 1, dir * -1 }); 
-		}
-		if (d[2][2] != d[3][6]) { //3번 바퀴와 상극이라면
-			v.push_back({ 3, dir * -1 });
-
-			if (d[3][2] != d[4][6]) { //4번 바쿠와 상극이라면
-				v.push_back({ 4,dir });
-			}
-		}
-	}
-	else if (num == 3) { //3번 톱니바퀴를 회전시키면
-
-		if (d[2][2] != d[3][6]) { //2번 바퀴와 상극이라면
-			v.push_back({ 2, dir * -1 });
-			if (d[1][2] != d[2][6]) {
-				v.push_back({ 1, dir });
-			}
-		}
-		
-		if (d[3][2] != d[4][6]) { //4번 바퀴와 상극이면
-			v.push_back({ 4,dir * -1 }); 
-		}
-	}
-	else if (num == 4) { //4번 톱니바퀴를 회전시키면
-
-		for (int i = 3; i >= 1; i--) {
-			if (d[i][2] != d[i + 1][6]) {
-				dir *= -1;
-				v.push_back({ i,dir });
-				continue;
-			}
-			break;
-		}
-	}
-
-	for (int i = 0; i < v.size(); i++) {
-		rotate(v[i].first, v[i].second);
-	}
-}
-
-int get_score() {
-	int score = 0;
-
-	
-	if (d[1][0] == 1) {
-		score += 1;
-	}
-	if (d[2][0] == 1) {
-		score += 2;
-	}
-	if (d[3][0] == 1) {
-		score += 4;
-	}
-	if (d[4][0] == 1) {
-		score += 8;
-	}
-	return score;
-}
 void input() {
-	for (int i = 1; i <= 4; i++) {
-		string s;
-		cin >> s;
+    for (int i = 0; i < 4; i++) {
+        string input;
+        cin >> input;
 
-		for (int j = 0; j < 8; j++) {
-			int num = s[j] - '0';
-			d[i].push_back(num);
-		}
-	}
+        for (int j = 0; j < 8; j++) {
+            dq[i].push_back(input[j]);
+        }
+    }
 
-	cin >> k;
+    cin >> k;
 
-	for (int i = 0; i < k; i++) {
-		int num, dir;
-		cin >> num >> dir;
-		mini_solution(num, dir);
-	}
+    for (int i = 0; i < k; i++) {
+        {
+            int num, dir;
+            cin >> num >> dir;
 
-	cout << get_score();
+            rotate(num, dir);
+        }
+    }
+}
+
+
+
+void output() {
+
+        int ans = 0;
+
+        int tmp_num = 1;
+        for (int i = 0; i < 4; i++) {
+            if (dq[i][0] == '1') { //S극이면
+                ans += tmp_num;
+         //       cout << "ans: " << ans << " tmp_num: " << tmp_num << "\n";
+            }
+            tmp_num *= 2;
+        }
+        cout << ans;
+  
 }
 
 int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
+       ios_base::sync_with_stdio(0);
+        cin.tie(0);
+        cout.tie(0);
 
-	input();
+        input();
+        output();
+    
 }
