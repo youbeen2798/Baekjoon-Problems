@@ -1,135 +1,261 @@
 #include <iostream>
 #include <vector>
 
+
 using namespace std;
 
 int n, m;
-int arr[9][9];
-bool direct[9][9];
-int camera_num = 0; //카메라 개수
-
-int directions[6] = { 0, 4, 2, 4, 4, 1 };
+char arr[9][9];
+char copy_arr[9][9];
+int ans = 999999;
 
 struct camera {
-	int camera_type;
-	int x;
-	int y;
+	int x; //행
+	int y; //열
+	int type; //타입
 };
-camera cameras[8];
 
-int ans = 100;
+camera cameras[9];
+int camera_num = 0;
+vector<int> camera_dirs[9]; 
+//카메라가 바라볼 위치만 담아놓은 배열
+//0: 상 // 1: 하 // 2: 좌 // 3: 우
 
-void input() {
-	cin >> n >> m; //세로 크기, 가로 크기
 
+void copy() {
+
+	//배열 복사
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			cin >> arr[i][j];
-			if (1 <= arr[i][j] && arr[i][j] <= 5) {
-				cameras[camera_num] = { arr[i][j], i, j };
-				camera_num++;
-			}
+			copy_arr[i][j] = arr[i][j];
 		}
 	}
 }
 
-void watch(int dir, int x,int y) {
-	dir = dir % 4;
+void up_watch(int x, int y) {
 
-	if (dir == 0) { //위쪽
-		for (int i = x - 1; i >= 0; i--) {
-			if (arr[i][y] == 6) {
-				break;
+	for (int i = x - 1; i >= 0; i--) {
+		if (copy_arr[i][y] != '6') {
+			copy_arr[i][y] = '#';
+			continue;
+		}
+		break;
+	}
+}
+
+void down_watch(int x, int y) {
+	for (int i = x + 1; i < n; i++) {
+		if (copy_arr[i][y] != '6') {
+			copy_arr[i][y] = '#';
+			continue;
+		}
+		break;
+	}
+}
+
+void left_watch(int x, int y) {
+
+	for (int j = y - 1; j >= 0; j--) {
+		if (copy_arr[x][j] != '6') {
+			copy_arr[x][j] = '#';
+			continue;
+		}
+		break;
+	}
+}
+
+void right_watch(int x, int y) {
+	for (int j = y + 1; j < m; j++) {
+		if (copy_arr[x][j] != '6') {
+			copy_arr[x][j] = '#';
+			continue;
+		}
+		break;
+	}
+}
+void real_camera_watch(int x, int y, int dir) {
+	//x,y에 있는 카메라가 dir 방향으로 본다.
+
+	if (dir == 0) {
+		//상
+		up_watch(x, y);
+	}
+	else if (dir == 1) {
+		//하
+		down_watch(x, y);
+	}
+	else if (dir == 2) {
+		//좌
+		left_watch(x, y);
+	}
+	else if (dir == 3) {
+		//우
+		right_watch(x, y);
+	}
+}
+void camera_watch(int camera_num, vector<int> camera_dirs) {
+	//카메라 번호가 camera_num
+	//camera_dirs만큼 관찰한다.
+
+	int x = cameras[camera_num].x; //카메라 행
+	int y = cameras[camera_num].y; //카메라 열
+
+	for (int i = 0; i < camera_dirs.size(); i++) {
+		real_camera_watch(x, y, camera_dirs[i]);
+	}
+}
+
+void check_sagakzidae() {
+
+	int tmp_ans = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (copy_arr[i][j] == '0') {
+				tmp_ans++;
 			}
-			direct[i][y] = true;
 		}
 	}
-	else if (dir == 1) { //오른쪽
-		for (int i = y + 1; i < m; i++) {
-			if (arr[x][i] == 6) {
-				break;
-			}
-			direct[x][i] = true;
-		}
-	}
-	else if (dir == 2) { //아래쪽
-		for (int i = x + 1; i < n; i++) {
-			if (arr[i][y] == 6) {
-				break;
-			}
-			direct[i][y] = true;
-		}
-	}
+
+	ans = min(ans, tmp_ans);
 	
-	else if (dir == 3) { //왼쪽
-		for (int i = y - 1; i >= 0; i--) {
-			if (arr[x][i] == 6) {
-				break;
-			}
-			direct[x][i] = true;
+}
+void real_solution() {
+
+	copy();
+
+	for (int i = 0; i < camera_num; i++) {
+		for (int j = 0; j < camera_dirs[i].size(); j++) {
+			//i번째 카메라가 dirs만큼 본다.
+			camera_watch(i, camera_dirs[i]);
 		}
 	}
+
+	check_sagakzidae(); //사각 지대 체크
 }
-
-void copy(bool backup[9][9], bool origin[9][9]) {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			backup[i][j] = origin[i][j];
-		}
-	}
-}
-void solution(int num) {
-
-	if (num == camera_num) {
-		int w = 0;
-
-
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				if (!direct[i][j] && arr[i][j] == 0) {
-				//	cout << "i: " << i << " j: " << j << "\n";
-					w++; 
-				}
-			}
-		}
-	//	cout << "w: " << w << "\n";
-		ans = min(w, ans);
+void permutation(int position) {
+	
+	if (position == camera_num) {
+		
+		real_solution();
 		return;
 	}
 
-	bool backup[9][9];
+	char camera_type = cameras[position].type; //카메라 타입
+	if (camera_type == '1') {
+		//상
+		camera_dirs[position].push_back(0);
+		permutation(position + 1);
+		camera_dirs[position].clear();
 
-	//0번 카메라의 타입
-	for (int dir = 0; dir < directions[cameras[num].camera_type]; dir++) {
-		int camera_type = cameras[num].camera_type; //1번이라 가정
+		//하
+		camera_dirs[position].push_back(1);
+		permutation(position + 1);
+		camera_dirs[position].clear();
 
-		copy(backup, direct);
-		//0: 위쪽 1:오른쪽 2: 아래쪽 3: 왼쪽
-		if (camera_type == 1) {
-			watch(dir, cameras[num].x, cameras[num].y); //0, 1, 2, 3
-		}
-		else if (camera_type == 2) { //0,2 //1,3
-			watch(dir, cameras[num].x, cameras[num].y);
-			watch(dir + 2, cameras[num].x, cameras[num].y);
-		}
-		else if (camera_type == 3) { //0,1 //1,2 //2,3 //3,4
-			watch(dir, cameras[num].x, cameras[num].y);
-			watch(dir + 1, cameras[num].x, cameras[num].y); 
-		}
-		else if (camera_type == 4) { //0,1,2 //1,2,3 //2,3,0 //3,4,5
-			watch(dir, cameras[num].x, cameras[num].y);
-			watch(dir + 1, cameras[num].x, cameras[num].y);
-			watch(dir + 2, cameras[num].x, cameras[num].y);
-		}
-		else if (camera_type == 5) {
-			watch(dir, cameras[num].x, cameras[num].y);
-			watch(dir + 1, cameras[num].x, cameras[num].y);
-			watch(dir + 2, cameras[num].x, cameras[num].y);
-			watch(dir + 3, cameras[num].x, cameras[num].y);
-		}
+		//좌
+		camera_dirs[position].push_back(2);
+		permutation(position + 1);
+		camera_dirs[position].clear();
 
-		solution(num + 1);
-		copy(direct, backup);
+		//우
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+	}
+	else if (camera_type == '2') {
+		//상, 하
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(1);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//좌, 우
+		camera_dirs[position].push_back(2);
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+	}
+	else if (camera_type == '3') {
+		//상, 우
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//우, 하
+		camera_dirs[position].push_back(3);
+		camera_dirs[position].push_back(1);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//하, 좌
+		camera_dirs[position].push_back(1);
+		camera_dirs[position].push_back(2);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//좌, 상
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(2);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+	}
+	else if (camera_type == '4') {
+		//상 빼고
+		camera_dirs[position].push_back(1);
+		camera_dirs[position].push_back(2);
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//하 빼고
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(2);
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//좌 빼고
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(1);
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+
+		//우 빼고
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(1);
+		camera_dirs[position].push_back(2);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+	}
+	else if (camera_type == '5') {
+		//사방면
+		camera_dirs[position].push_back(0);
+		camera_dirs[position].push_back(1);
+		camera_dirs[position].push_back(2);
+		camera_dirs[position].push_back(3);
+		permutation(position + 1);
+		camera_dirs[position].clear();
+	}
+}
+void solution() {
+
+	permutation(0);
+
+	cout <<  ans;
+}
+
+void input() {
+	cin >> n >> m;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++){
+			cin >> arr[i][j];
+			if ('1' <= arr[i][j] && arr[i][j] <= '5') {
+				cameras[camera_num++] = { i,j, arr[i][j] };
+			}
+		}
 	}
 }
 int main() {
@@ -138,6 +264,5 @@ int main() {
 	cout.tie(0);
 
 	input();
-	solution(0);
-	cout << ans;
+	solution();
 }
