@@ -1,75 +1,81 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <deque>
+
 using namespace std;
 
-int n; //배열 크기
-int m; //나무 개수
+int n;
+int m;
 int k;
-int plus_arr[11][11]; //겨울마다 추가되는 양분
-int arr[11][11]; //제일 처음에 양분
-vector<int> trees[11][11]; //나이
-int x, y, z; //(x,y) - 나무위치, z - 나무 나이
+int arr[11][11];
+int nutrient[11][11];
+vector<int> tree[11][11];
 
-int sping_dead_tree_eat[11][11]; //죽은 나무가 남긴 양분
-
-int dx[8] = { -1,-1,-1,0,0,1,1, 1 };
-int dy[8] = { -1,0,1,-1,1,-1,0, 1 };
+int dx[8] = { 1, -1, 0, 0,   1, 1, -1, -1};
+int dy[8] = { 0, 0,  1, -1, -1, 1, -1,  1};
 
 void spring() {
-	//봄
-	//나무가 자신의 나이만큼 양분을 먹고, 1 증가
-	//하나의 칸에 여러 개의 나무가 있으면 나이거 어린 나무부터 양분을 먹는다.
-	
+	//나무가 자신의 나이만큼 양분을 먹고, 나이가 1 증가한다.
+
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			sort(trees[i][j].begin(), trees[i][j].end());
-			int size = trees[i][j].size(); //size를 변수처리하는게 시간 초과에 좋음
-			for (int k = 0; k < size; k++) {
-				//나무의 개수만큼
-				int age = trees[i][j][k]; //나무의 나이 
-				if (arr[i][j] >= age) { //양분을 먹을 수 있다면 먹고
-					trees[i][j][k]++; //나이 1증가
-					arr[i][j] -= age;
-					continue;
+			sort(tree[i][j].begin(), tree[i][j].end());
+			for (int k = 0; k < tree[i][j].size(); k++) {
+				//나머지 양분
+				int now_tree_age = tree[i][j][k];
+				int namuzi_nutrient = arr[i][j] - now_tree_age;
+				if (namuzi_nutrient < 0) {
+					//양분이 부족하다면
+					tree[i][j][k] *= -1; //죽는다.
 				}
-				//아님 즉시 죽는다.
-				trees[i][j][k] *= -1;
+				else {
+					//양분이 부족하지 않다면 자신의 나이만큼 양분을 먹고, 나이가 1 증가한다.
+					arr[i][j] = namuzi_nutrient;
+					tree[i][j][k] += 1; 
+				}		
 			}
 		}
 	}
 }
 
 void summer() {
-	//봄에 죽은 나무가 양분으로 변하게 된다.
-	//각각의 죽은 나무마다 나이를 2로 남은 값이 나무에 있던 칸에 양분으로 추가된다.
-
+	//봄에 죽은 나무가 양분으로 변하게 된다. 
+	//각각의 죽은 나무마다 나이를 2로 나눈 값이 나무가 있던 칸에 양분으로 추가된다. 
+	//소수점 아래는 버린다.
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			for (int k = trees[i][j].size() - 1; k >= 0; k--) {
-				if (trees[i][j][k] < 0) { //죽은 나무이면
-					arr[i][j] -= trees[i][j][k] / 2; //  양분 추가
-					trees[i][j].pop_back();
+			sort(tree[i][j].rbegin(), tree[i][j].rend());
+
+			int size = tree[i][j].size();
+			for (int k = size - 1; k >= 0; k--) {
+				//만약 봄에 죽은 나무라면
+				if (tree[i][j][k] < 0) {
+					//2로 나눈 값이 나무가 있던 
+					int dividebytwo = (-1 * tree[i][j][k]) / 2;
+					arr[i][j] += dividebytwo;
+					tree[i][j].pop_back();
 				}
 			}
 		}
 	}
+
 }
 
-void fall() {
-	//나무가 번식한다.
+void authum() {
+	//번식하는 나무는 나이가 5의 배수이어야 하며, 
+	//인접한 8개의 칸에 나이가 1인 나무가 생긴다. 
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			for (int k = 0; k < trees[i][j].size(); k++) {
-				int age = trees[i][j][k]; //나무 나이
-				if (age % 5 == 0) { //나기가 5의 배수이면
-					for (int t = 0; t < 8; t++) {
-						//인접한 8개 칸에 나이가 1인 나무가 생긴다.
-						int nx = i + dx[t];
-						int ny = j + dy[t];
+			for (int k = 0; k < tree[i][j].size(); k++) {
+				int tree_age = tree[i][j][k];
+
+				if (tree_age % 5 == 0) {
+					//만약 5의 배수라면
+					for (int k = 0; k < 8; k++) {
+						int nx = i + dx[k];
+						int ny = j + dy[k];
 						if (1 <= nx && nx <= n && 1 <= ny && ny <= n) {
-							trees[nx][ny].push_back(1);
+							tree[nx][ny].push_back(1);
 						}
 					}
 				}
@@ -79,55 +85,52 @@ void fall() {
 }
 
 void winter() {
-	//양분을 추가한다.
+
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			arr[i][j] += plus_arr[i][j];
+			arr[i][j] += nutrient[i][j];
 		}
 	}
 }
-
 void solution() {
 
-	for (int i = 0; i < k; i++) {
-		spring(); //봄
-		summer(); //여름
-		fall(); //가을
-		winter(); //겨울
+	for (int i = 1; i <= k; i++) {
+		spring();
+		summer();
+		authum();
+		winter();
 	}
-
 
 	int ans = 0;
-
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			ans += trees[i][j].size();
+			ans += tree[i][j].size();
 		}
 	}
-	cout << ans;
 
+	cout << ans;
 }
 void input() {
-	
+
 	cin >> n >> m >> k;
 
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			arr[i][j] = 5; //제일 처음에 양분은 5
-		}
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			cin >> plus_arr[i][j]; //칸에 추가하는 양분
+			arr[i][j] = 5;
+			cin >> nutrient[i][j];
 		}
 	}
 
+
 	for (int i = 0; i < m; i++) {
+		int x, y, z; //나무 위치: (x,y), 나이: z
 		cin >> x >> y >> z;
-		trees[x][y].push_back(z); //(x,y)에 나이가 z인 나무가 있음
+		tree[x][y].push_back(z);
 	}
 }
+
 int main() {
+
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
