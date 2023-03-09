@@ -1,51 +1,53 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
 
 using namespace std;
 
 int n;
-int ti, pi;
+int t[16];
+int p[16];
+int ans = 0;
 
-vector <pair<int, int>> v;
+void dfs(int day, int cost) {
 
-int maxx = 0;
+	//현재 day까지 cost만큼 벌었음 10을 시작할까 말까 할 수 있음
+	ans = max(ans, cost);
 
-void solution(int ti, int pi) { //1 0
-
-//	cout << "ti: " << ti << " " << "pi: " << pi << "\n";
-
-	if (ti > n) {
-		maxx = max(pi, maxx);
-		return;
-	}
-	solution(ti + 1, pi);
-
-	if (ti > n || ti + v[ti].first > n + 1 ) {
-		maxx = max(pi, maxx);
+	if (day > n) {
 		return;
 	}
 
+	//day를 포함하는 경우
+	if (day + t[day] <= n + 1) {
+		dfs(day + t[day], cost + p[day]);
+	}
 
-	solution(ti + v[ti].first, pi + v[ti].second); //해당 날짜에 상담을 했을 때
-	
+	//day를 포함하지 않는 경우
+	if (day + 1 <= n) {
+		ans = max(ans, cost);
+		dfs(day + 1, cost);
+	}
+}
+void solution() {
+
+	dfs(1, 0);
+	cout << ans;
 }
 
+void input() {
+
+	cin >> n;
+
+	for (int i = 1; i <= n; i++) {
+		cin >> t[i] >> p[i];
+	}
+}
 int main() {
+
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	cin >> n;
-
-	v.push_back({ 0,0 });
-
-	for (int i = 0; i < n; i++) {
-		cin >> ti >> pi;
-		v.push_back({ ti,pi });
-	}
-
-	solution(1, 0);
-
-	cout <<  maxx;
+	input();
+	solution();
 }
