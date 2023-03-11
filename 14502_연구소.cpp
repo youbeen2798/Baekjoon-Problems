@@ -5,21 +5,22 @@
 
 using namespace std;
 
-int n;
-int m;
+int n; //세로 크기
+int m; //가로 크기
 int map[9][9];
 bool visited[9][9];
-bool spread[9][9];
 int ans = 0;
 
-vector<pair<int, int>> empty_room; //빈 방
+vector<pair<int, int>> walls;
 
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
 
-void spread_bfs(int x, int y) {
+void bfs(int x, int y) {
 
 	queue<pair<int, int>> q;
+
+	visited[x][y] = true;
 	q.push({ x,y });
 
 	while (!q.empty()) {
@@ -32,53 +33,56 @@ void spread_bfs(int x, int y) {
 			int nx = a + dx[i];
 			int ny = b + dy[i];
 
-			//빈칸이고, 방문을 하지 않았다면
-			if (0 <= nx && nx < n && 0 <= ny && ny < m && !spread[nx][ny] && map[nx][ny] == 0) {
-
-				spread[nx][ny] = true;
+			if (0 <= nx && nx < n && 0 <= ny && ny < m && !visited[nx][ny] && map[nx][ny] != 1) {
+				visited[nx][ny] = true;
 				q.push({ nx,ny });
 			}
 		}
 	}
 }
 
-void count_safe_zone() {
-
-	int tmp_cnt = 0;
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			if (map[i][j] == 0 && !spread[i][j]) {
-				tmp_cnt++;
-			}
-		}
-	}
-
-	ans = max(ans, tmp_cnt);
-}
 void check() {
-
-	memset(spread, false, sizeof(spread));
+	
+	int tmp_ans = 0;
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (map[i][j] == 2) {
-				spread_bfs(i, j);
+			if (map[i][j] == 0 && !visited[i][j]) {
+				tmp_ans++;
 			}
 		}
 	}
 
-	count_safe_zone();
+	ans = max(ans, tmp_ans);
 }
-void combination(vector<pair<int, int>> arr, vector<pair<int, int>> comb, int r, int depth, int idx) {
-	if (r == 0) {
-		for (int i = 0; i < comb.size(); i++) {
-			map[comb[i].first][comb[i].second] = 1; //빈칸 벽으로 막기
-		}
-		check();
+void spread_virus() {
 
+	memset(visited, false, sizeof(visited));
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (map[i][j] == 2 && !visited[i][j]) {
+				bfs(i, j);
+			}
+		}
+	}
+
+	check();
+}
+
+void combination(vector<pair<int, int>> arr, vector<pair<int, int>> comb, int r, int idx, int depth) {
+
+	if (r == 0) {
+	//	cout << "#####" << "\n";
+		//선택된 3곳 새로운 벽으로 만들기
 		for (int i = 0; i < comb.size(); i++) {
-			map[comb[i].first][comb[i].second] = 0; //원래대로 돌려놓기
+			map[comb[i].first][comb[i].second] = 1;
+		}
+
+		spread_virus();
+		//벽 다시 빈 칸으로 만들기
+		for (int i = 0; i < comb.size(); i++) {
+			map[comb[i].first][comb[i].second] = 0;
 		}
 		return;
 	}
@@ -86,27 +90,33 @@ void combination(vector<pair<int, int>> arr, vector<pair<int, int>> comb, int r,
 		return;
 	}
 	else {
+
 		comb[idx] = arr[depth];
-		combination(arr, comb, r - 1, depth + 1, idx + 1);
-		combination(arr, comb, r, depth + 1, idx);
+
+		combination(arr, comb, r - 1, idx + 1, depth + 1);
+
+		combination(arr, comb, r, idx, depth + 1);
 	}
 }
 void solution() {
 
 	vector<pair<int, int>> comb(3);
 
-	combination(empty_room, comb, 3, 0, 0);
+	combination(walls, comb, 3, 0, 0);
+
+	cout << ans;
 }
 
 void input() {
 
 	cin >> n >> m;
 
+	//0: 빈칸, 1: 벽, 2: 바이러스 위치
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			cin >> map[i][j];
 			if (map[i][j] == 0) {
-				empty_room.push_back({ i,j });
+				walls.push_back({ i,j });
 			}
 		}
 	}
@@ -118,5 +128,4 @@ int main() {
 
 	input();
 	solution();
-	cout << ans;
 }
