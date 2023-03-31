@@ -1,93 +1,85 @@
 #include <iostream>
 #include <queue>
-#include <cstring>
+#include <algorithm>
 
 using namespace std;
 
-int l, w;
-char arr[51][51];
+int n; //세로 크기
+int m; //가로 크기
+
+char map[51][51];
 bool visited[51][51];
-int max_dist = 0;
 
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
 
-struct location {
-	int x;
-	int y;
-	int cnt;
-};
-
 void reset() {
 
 	memset(visited, false, sizeof(visited));
-	for (int i = 0; i < l; i++) {
-		for (int j = 0; j < w; j++) {
-			if (arr[i][j] == 'W') {
-				visited[i][j] = true;
-			}
-		}
-	}
-}
-void input() {
-	cin >> l >> w;
-
-	for (int i = 0; i < l; i++) {
-		string st;
-		cin >> st;
-		for (int j = 0; j < st.size(); j++) {
-			arr[i][j] = st[j];
-		}
-	}
-	
-	for (int i = 0; i < l; i++) {
-		for (int j = 0; j < w; j++) {
-			cout << arr[i][j] << " ";
-		}
-		cout << "\n";
-	}
 }
 
-void bfs(int x, int y) {
-	queue <pair<location, int>> q;
-	q.push({ {x,y}, 0 });
+int bfs(int x, int y) {
+
+	queue<pair<int, pair<int,int>>> q;
+	q.push({ 0, { x,y } });
 	visited[x][y] = true;
 
+	int maxi_dist = 0;
+
 	while (!q.empty()) {
-		int x = q.front().first.x;
-		int y = q.front().first.y;
-		int cnt = q.front().second;
-		max_dist = max(max_dist, cnt);
+		int a = q.front().second.first;
+		int b = q.front().second.second;
+		int dist = q.front().first;
+		maxi_dist = max(dist, maxi_dist);
 
 		q.pop();
+
 		for (int i = 0; i < 4; i++) {
-			int nx = x + dx[i];
-			int ny = y + dy[i];
-			if (0 <= nx && nx < l && 0 <= ny && ny < w && !visited[nx][ny]) {
-				q.push({ {nx,ny}, cnt + 1 });
+			int nx = a + dx[i];
+			int ny = b + dy[i];
+
+			if (0 <= nx && nx < n && 0 <= ny && ny < m && !visited[nx][ny] && map[nx][ny] == 'L') {
+				q.push({ dist + 1, { nx,ny } });
 				visited[nx][ny] = true;
 			}
 		}
 	}
-	
+
+	return maxi_dist;
 }
+
 void solution() {
-	for (int i = 0; i < l; i++) {
-		for (int j = 0; j < w; j++) {
-			if (arr[i][j] == 'L') {
+
+	int ans = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (map[i][j] == 'L') {
 				reset();
-				bfs(i,j);
+				ans = max(ans, bfs(i, j));
 			}
+		}
+	}
+	cout << ans;
+}
+
+void input() {
+
+	cin >> n >> m;
+	
+	for (int i = 0; i < n; i++) {
+		string st;
+		cin >> st;
+		for (int j = 0; j < m; j++) {
+			map[i][j] = st[j];
 		}
 	}
 }
 int main() {
+
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
 	input();
 	solution();
-	cout << max_dist;
-
 }
