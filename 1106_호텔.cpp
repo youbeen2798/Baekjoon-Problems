@@ -1,39 +1,70 @@
 #include <iostream>
 #include <vector>
+#include <queue>
+
 using namespace std;
-int dp[100001]; // 홍보 최대 고객 수가 1000명, 1명당 100원이 든다고 가정할 때
 
+int c;
+int n; //형택이가 홍보할 수 있는 도시 개수
+int dp[1100]; //dp[1] = 3; //1명을 홍보하는데 3원이 듬
+vector<pair<int, int>> info;
+int ans = 999999999;
+
+void solution() {
+
+	queue < pair<int, int>> q;
+	
+	for (int i = 1; i <= 1100; i++) {
+		dp[i] = 999999999;
+	}
+
+	for (int i = 0; i < info.size(); i++) {
+		int people_num = info[i].first;
+		int cost = info[i].second;
+		q.push({ people_num, cost });
+		dp[people_num] = cost;
+	}
+
+	int cnt = 0;
+	while (!q.empty()) {
+		int people_num = q.front().first;
+		int cost = q.front().second;
+		q.pop();
+
+		if (people_num >= c) {
+			ans = min(ans, dp[people_num]);
+			continue; 
+		}
+		for (int i = 0; i < info.size(); i++) {
+			int plus_people_num = info[i].first;
+			int plus_cost = info[i].second;
+
+			int total_people_num = people_num + plus_people_num;
+			int total_cost = cost + plus_cost;
+			if (dp[total_people_num] > total_cost) {
+				dp[total_people_num] = total_cost;
+				q.push({ total_people_num, total_cost });
+			}
+		}
+	}
+
+	cout  << ans;
+}
+
+void input() {
+	cin >> c >> n;
+
+	for (int i = 0; i < n; i++) {
+		int cost, customer_num;
+		cin >> cost >> customer_num;
+		info.push_back({ customer_num, cost });
+	}
+}
 int main() {
-
-	ios::sync_with_stdio(0); //입출력 빠르게
+	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
 
-	int c, n;
-	cin >> c >> n;
-	
-	vector <pair<int, int>> vt(n); //n개의 수만큼 벡터 생성
-
-	for (int i = 0; i < n; i++) {
-		int a, b;
-		cin >> a >> b;
-		vt[i] = { a,b }; // 비용과 그 비용으로 얻을 수 있는 고객 수
-	}
-
-	for (int i = 1; i <= 100000; i++) {
-		for (int j = 0; j < n; j++) {
-			if (i % vt[j].first == 0) { //나누어 떨어지면
-				dp[i] = max(dp[i], i / vt[j].first * vt[j].second);
-			}
-			if (i - vt[j].first >= 0) { //나누어 떨어지지 않으면
-				dp[i] = max(dp[i], dp[i - vt[j].first] + vt[j].second);
-			}
-		}
-
-		if (c <= dp[i]) { //홍보했을 때 최소 고객이 i를 투자했을 때 최대 고객보다 적으면
-			cout << i;
-			return 0;
-		}
-	}
-
+	input();
+	solution();
 }
