@@ -6,99 +6,104 @@
 using namespace std;
 
 int n, l, r;
-int arr[51][51];
+int map[51][51];
 bool visited[51][51];
-bool changed = false;
+bool move_flag = false;
 
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
 
-void reset() {
-	changed = false;
-	memset(visited, false, sizeof(visited));
+bool inrange(int x, int y) {
+
+	if (1 <= x && x <= n && 1 <= y && y <= n) {
+		return true;
+	}
+	return false;
 }
+void move(int x, int y) {
 
-void bfs(int x, int y) {
-	
-	vector<pair<int, int>> v; //연결된 나라들
-	int sum = 0; //연결된 나라들 합
-
-	v.push_back({ x,y });
 	queue<pair<int, int>> q;
-	visited[x][y] = true;
-	sum += arr[x][y];
 	q.push({ x,y });
+	visited[x][y] = true;
+
+	vector<pair<int, int>> countries;
+	countries.push_back({ x,y }); //연합을 이루는 나라들
+	int country_people_sum = map[x][y];
 
 	while (!q.empty()) {
 		int a = q.front().first;
 		int b = q.front().second;
-		int num = arr[a][b];
 
 		q.pop();
 
 		for (int i = 0; i < 4; i++) {
 			int nx = a + dx[i];
 			int ny = b + dy[i];
-			int num2 = arr[nx][ny];
-			int diff = abs(num - num2);
+			
+			if (inrange(nx, ny) && !visited[nx][ny]) {
+				int diff = abs(map[nx][ny] - map[a][b]);
 
-			//방문한적 없고 차이가 l과 r 사이일때
-			if (0 <= nx && nx < n && 0 <= ny && ny < n && !visited[nx][ny]) {
 				if (l <= diff && diff <= r) {
-					q.push({ nx,ny });
-					v.push_back({ nx,ny });
+					move_flag = true; 
+					q.push({ nx, ny });
 					visited[nx][ny] = true;
-					sum += arr[nx][ny];
+					countries.push_back({ nx, ny });
+					country_people_sum += map[nx][ny];
 				}
 			}
 		}
 	}
 
-	int avg = sum / v.size(); //나라 평균
+	int people_cnt = country_people_sum / countries.size();
 
-	if (v.size() > 1) {
-		changed = true;
+	for (int i = 0; i < countries.size(); i++) {
+		map[countries[i].first][countries[i].second] = people_cnt;
 	}
-	for (int i = 0; i < v.size(); i++) {
-		arr[v[i].first][v[i].second] = avg;
+
+}
+
+void one_day_move() {
+
+
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			if (!visited[i][j]) { //아직 방문하지 않았다면
+				move(i, j); //이동
+			}
+		}
 	}
 }
 
+void reset() {
+	memset(visited, false, sizeof(visited));
+	move_flag = false;
+}
 void solution() {
 
-	int answer = 0;
-	while (true) {
-
+	for (int days = 0; ; days++) {
 		reset();
-
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if (!visited[i][j]) {
-					bfs(i, j);
-				}
-			}
-		}
-
-		if (!changed) {
+		one_day_move();
+		
+		if (!move_flag) {
+			cout << days;
 			break;
 		}
-
-		answer++;
 	}
 
-	cout <<  answer;
-}
 
+}
 void input() {
+
 	cin >> n >> l >> r;
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cin >> arr[i][j];
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			cin >> map[i][j];
 		}
 	}
 }
 int main() {
+
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
