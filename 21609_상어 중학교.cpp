@@ -1,58 +1,108 @@
 #include <iostream>
-#include <queue>
 #include <vector>
-#include <algorithm>
+#include <queue>
 #include <cstring>
+#include <algorithm>
+
 using namespace std;
 
-int n, m; //격자 한변의 크기, 색상의 개수
-int arr[21][21]; //격자
-int visited[21][21];
-int score = 0;
+int n; //격자 한 변의 크기
+int m; //색상 개수
+int map[21][21];
+bool visited[21][21];
+bool check[21][21];
+int ans = 0;
+
+struct info {
+
+	int block_num; //블록 개수
+	int muzigae_num; //무지개 블록 개수
+	int gizun_block_x; //기준 블록 행
+	int gizun_block_y; //기준 블록 열
+};
+
+vector<info> v;
 
 int dx[4] = { 1,-1,0,0 };
 int dy[4] = { 0,0,1,-1 };
-int cnt = 0;
 
-pair<pair<int, int>, pair<int, int>> bfs(int x, int y) {
-	//기준 블록 x,y && 블록집합 사이즈, 무지개 블록
+bool compare(info i1, info i2) {
+
+	if (i1.block_num > i2.block_num) {
+		return true;
+	}
+	else if (i1.block_num == i2.block_num) {
+		if (i1.muzigae_num > i2.muzigae_num) {
+			return true;
+		}
+		else if (i1.muzigae_num == i2.muzigae_num) {
+			if (i1.gizun_block_x > i2.gizun_block_x) {
+				return true;
+			}
+			else if (i1.gizun_block_x == i2.gizun_block_x) {
+				if (i1.gizun_block_y > i2.gizun_block_y) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	else {
+		return false;
+	}
+
+}
+bool inrange(int x, int y) {
+	if (0 <= x && x < n && 0 <= y && y < n) {
+		return true;
+	}
+	return false;
+}
+
+void bfs(int x, int y) {
 
 	memset(visited, false, sizeof(visited));
 
-	queue <pair<int, int>> q;
+	queue<pair<int, int>> q;
 	q.push({ x,y });
-	int num = arr[x][y]; //블록 색깔
-	visited[x][y] = cnt;
+	visited[x][y] = true;
+	int num = map[x][y];
+	check[x][y] = true;
 
-	int muzigae_num = 0;
-	int total_num = 1;
-
+	int tmp_muzigae_num = 0; //무지개 블록 개수
+	
 	vector<pair<int, int>> general_blocks; //일반 블록 모음
 	general_blocks.push_back({ x,y });
 
 	while (!q.empty()) {
-		int a = q.front().first;
-		int b = q.front().second;
+		int now_x = q.front().first;
+		int now_y = q.front().second;
 
 		q.pop();
 
 		for (int i = 0; i < 4; i++) {
-			int nx = a + dx[i];
-			int ny = b + dy[i];
+			int nx = now_x + dx[i];
+			int ny = now_y + dy[i];
 
-			if (0 <= nx && nx < n && 0 <= ny && ny < n && visited[nx][ny] != cnt) {
+			if (inrange(nx, ny) && !visited[nx][ny] && map[nx][ny] != -1) {
+				visited[nx][ny] = true;
 
-				if (arr[nx][ny] == num) { //일반 블록이면
+				if (map[nx][ny] == 0) { //무지개 블록이라면
+					tmp_muzigae_num++;
 					q.push({ nx,ny });
-					general_blocks.push_back({ nx,ny }); //일반 블록 모음에 추가
-					total_num++; //전체 개수
-					visited[nx][ny] = cnt;
 				}
-				else if (arr[nx][ny] == 0) { //무지개 블록이면
+				else if(map[nx][ny] == num) {
+					general_blocks.push_back({ nx,ny });
+					check[nx][ny] = true;
 					q.push({ nx,ny });
-					visited[nx][ny] = cnt;
-					muzigae_num++; //무지개 개수
-					total_num++; //전체 개수
 				}
 			}
 		}
@@ -60,186 +110,145 @@ pair<pair<int, int>, pair<int, int>> bfs(int x, int y) {
 
 	sort(general_blocks.begin(), general_blocks.end());
 
-	pair<int, int> gizun_block = general_blocks[0]; //기준 블록
+	int this_block_num = tmp_muzigae_num + general_blocks.size();
+	int this_gizun_x = general_blocks[0].first;
+	int this_gizun_y = general_blocks[0].second;
 
-	return { gizun_block, { total_num, muzigae_num } };
+	if (this_block_num > 1) {
+		v.push_back({ this_block_num, tmp_muzigae_num, this_gizun_x, this_gizun_y });
+	}
 }
 
-void bfs2(int x, int y) {
+void real_bfs(int x, int y) {
+
+	memset(visited, false, sizeof(visited));
 
 	queue<pair<int, int>> q;
-
 	q.push({ x,y });
 	visited[x][y] = true;
-	int num = arr[x][y];
-	arr[x][y] = -2;
-	int tmp_num = 1;
+	int num = map[x][y];
 
 	while (!q.empty()) {
-		int a = q.front().first;
-		int b = q.front().second;
+		int now_x = q.front().first;
+		int now_y = q.front().second;
+
+		map[now_x][now_y] = -2;
 
 		q.pop();
 
 		for (int i = 0; i < 4; i++) {
-			int nx = a + dx[i];
-			int ny = b + dy[i];
+			int nx = now_x + dx[i];
+			int ny = now_y + dy[i];
 
-			if (0 <= nx && nx < n && 0 <= ny && ny < n && !visited[nx][ny]) {
-				if (arr[nx][ny] == num || arr[nx][ny] == 0) {
-					arr[nx][ny] = -2; //제거
+			if (inrange(nx, ny) && !visited[nx][ny] && map[nx][ny] != -1) {
+				visited[nx][ny] = true;
+
+				if (map[nx][ny] == 0) { //무지개 블록이라면
 					q.push({ nx,ny });
-					visited[nx][ny] = true;
-					tmp_num++;
+				}
+				else if (map[nx][ny] == num) {
+					q.push({ nx,ny });
 				}
 			}
 		}
 	}
-
-	score += tmp_num * tmp_num;
-
-}
-
-void print() {
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cout << arr[i][j] << " ";
-		}
-		cout << "\n";
-	}
-
 }
 void find_biggest_block_group() {
-	//크기가 가장 큰 블록 그룹을 찾는다.
 
-	memset(visited, false, sizeof(visited));
-
-	int x;
-	int y;
-	pair<int, int> gizun_block = { -1,-1 };
-	int total_num = -1;
-	int muzigae_num = -1;
-
-	cnt = 0;
+	v.clear();
+	memset(check, false, sizeof(check));
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (1 <= arr[i][j] && arr[i][j] <= m && visited[i][j] == 0) {
-				//방문하지 않은, 일반 블록
-				cnt++;
-				pair<pair<int, int>, pair<int, int>> p = bfs(i, j);
-				pair<int, int> tmp_gizun_block = p.first; //기준 블록
-				int tmp_total_num = p.second.first; //전채 개수
-				int tmp_muzigae_num = p.second.second; //무지개 개수
-				if (tmp_total_num == 1) { //만약 개수가 1개라면
-					continue;
-				}
-				if (total_num == -1 || total_num < tmp_total_num) {
-					//전체 블록 개수가 작거나
-					gizun_block = tmp_gizun_block;
-					total_num = tmp_total_num;
-					muzigae_num = tmp_muzigae_num;
-					x = i;
-					y = j;
-				}
-				else if (total_num == tmp_total_num) {
-					//전체 블록 개수가 같다면
-					if (tmp_muzigae_num > muzigae_num) {
-						gizun_block = tmp_gizun_block;
-						total_num = tmp_total_num;
-						muzigae_num = tmp_muzigae_num;
-						x = i;
-						y = j;
-					}
-					else if (tmp_muzigae_num == muzigae_num) {
-						//무지개 개수가 같다면
-						if (tmp_gizun_block > gizun_block) {
-							gizun_block = tmp_gizun_block;
-							total_num = tmp_total_num;
-							muzigae_num = tmp_muzigae_num;
-							x = i;
-							y = j;
-						}
-					}
-				}
+			if (0 < map[i][j] && !check[i][j]) {
+				bfs(i, j);
 			}
 		}
 	}
 
-	if (total_num == -1) {
-		cout << score;
+	sort(v.begin(), v.end() ,compare);
+
+	if (v.size() == 0) {
+		cout << ans << "\n";
 		exit(0);
 	}
-	memset(visited, false, sizeof(visited));
-	bfs2(x, y);
+
+	ans += v[0].block_num * v[0].block_num;
+	real_bfs(v[0].gizun_block_x, v[0].gizun_block_y);
 }
 
-pair<int, int> down(int x, int y) {
+void down(int x, int y) {
 
-	pair<int, int> start = { x,y };
-
+	int num = map[x][y];
+	int nx = x;
 	for (int i = x + 1; i < n; i++) {
-		if (arr[i][y] != -2) { //검은색 블록 혹은 일반 블록 혹은 무지개 블록이 있다면
-			return start;
+		if (map[i][y] == -2) {
+			nx = i;
 		}
-		start = { i,y };
+		else {
+			break;
+		}
 	}
-	return start;
+
+	map[x][y] = -2;
+	map[nx][y] = num;
 }
-void gravity() {
+void zoong_luck() {
+	//중력 작용
+
 	for (int j = 0; j < n; j++) {
 		for (int i = n - 1; i >= 0; i--) {
-			int num = arr[i][j];
-			if (num == -1 || num == -2) { //검은색 블록이면
-				continue;
+			if (map[i][j] >=  0) {
+				down(i, j);
 			}
-			pair<int, int> next_position = down(i, j);
-			arr[i][j] = -2; //빈칸처리
-			arr[next_position.first][next_position.second] = num; //숫자 채우기
 		}
 	}
 }
 
-void rotate() {
+void un_clock() {
 
-	int arr2[100][100];
+	int arr2[21][21];
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0;  i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			arr2[i][j] = arr[j][abs(n - 1 - i)];
+			arr2[i][j] = map[j][abs(n - 1 - i)];
 		}
 	}
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			arr[i][j] = arr2[i][j];
+			map[i][j] = arr2[i][j];
 		}
 	}
+}
+void one_auto_play() {
+	//한 번의 오토플레이
+
+	find_biggest_block_group(); //크기가 가장 큰 블록 그룹을 찾는다.
+	zoong_luck(); //중력 작용
+	un_clock(); //반시계 방향
+	zoong_luck(); //중력 작용
 }
 void solution() {
-	//검은색블록: -1
-	//무지개블록: 0
-	//기준 블록 : 무지개 블록이 아닌 블록 중에서 행의 번호가 가장 작고, 열의 번호가 가장 작은 블록
-
-	while (true) {
-		find_biggest_block_group();
-		gravity();
-		rotate(); //반시계 방향으로 회전
-		gravity(); //다시 중력
+	
+	for (int i = 1;; i++) {
+		one_auto_play();
 	}
 
 }
+
 void input() {
+
 	cin >> n >> m;
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			cin >> arr[i][j];
+			cin >> map[i][j];
 		}
 	}
 }
 int main() {
+
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
